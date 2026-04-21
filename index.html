@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>International Finance Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Editorial palette — ink + warm paper + antique gold */
+    --ink:      #0B1220;
+    --ink-2:    #1F2937;
+    --ink-3:    #475569;
+    --ink-4:    #64748B;
+    --paper:    #FAF8F4;
+    --paper-2:  #F3EFE6;
+    --card:     #FFFFFF;
+    --line:     #E7E2D6;
+    --line-2:   #D6D0C2;
+    --accent:   #B8860B;
+    --accent-2: #8C6A0A;
+    --nodata:   #EDE8DB;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink-2);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  a { color: var(--accent-2); text-decoration: none; border-bottom: 1px solid rgba(140,106,10,0.3); }
+  a:hover { border-bottom-color: var(--accent-2); }
+
+  /* ---------- Header ---------- */
+  header {
+    padding: 40px 56px 28px;
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+  }
+  header .eyebrow {
+    font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--accent-2); font-weight: 600; margin-bottom: 12px;
+  }
+  header h1 {
+    margin: 0 0 10px 0;
+    font-family: "Fraunces", "Playfair Display", Georgia, serif;
+    font-weight: 500; font-size: 40px; letter-spacing: -0.02em;
+    color: var(--ink); line-height: 1.08;
+    font-variation-settings: "SOFT" 30, "opsz" 144;
+  }
+  header .lede {
+    color: var(--ink-3); font-size: 15.5px; max-width: 720px;
+    line-height: 1.55; margin: 0;
+  }
+  .meta-row {
+    display: flex; gap: 14px; align-items: center;
+    margin-top: 20px; font-size: 12px; color: var(--ink-4);
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  #status-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 2px;
+    border: 1px solid var(--line-2); background: var(--card);
+    font-family: "Inter", sans-serif;
+  }
+  #status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+  .chip-loading { color: #92400E; background: #FEF3C7; border-color: #FDE68A; }
+  .chip-live    { color: #065F46; background: #D1FAE5; border-color: #A7F3D0; }
+  .chip-mixed   { color: var(--accent-2); background: #FEF7E0; border-color: #EADAA7; }
+  .chip-static  { color: #374151; background: #F3F4F6; border-color: #E5E7EB; }
+
+  /* ---------- Layout ---------- */
+  main {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr) 340px;
+    gap: 0;
+    min-height: 72vh;
+  }
+  @media (max-width: 1220px) {
+    main { grid-template-columns: 220px minmax(0, 1fr); }
+    #detail-panel { display: none; }
+  }
+  @media (max-width: 820px) {
+    main { grid-template-columns: 1fr; }
+    #sidebar { border-right: none; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+    header { padding: 28px 24px 20px; }
+    header h1 { font-size: 30px; }
+    footer { padding: 20px 24px 28px; }
+  }
+
+  /* ---------- Sidebar (indicator selector) ---------- */
+  #sidebar {
+    background: var(--card);
+    border-right: 1px solid var(--line);
+    padding: 32px 0 24px 0;
+  }
+  .group-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--ink-4); padding: 0 24px 14px;
+  }
+  .tab-btn {
+    display: block; width: 100%; text-align: left;
+    appearance: none; border: none; background: transparent;
+    color: var(--ink-2); font-family: inherit;
+    font-size: 13.5px; font-weight: 500;
+    padding: 11px 24px 11px 21px;
+    cursor: pointer; border-left: 3px solid transparent;
+    transition: background .12s ease, color .12s ease, border-color .12s ease;
+    line-height: 1.35;
+  }
+  .tab-btn:hover { background: var(--paper-2); color: var(--ink); }
+  .tab-btn.active {
+    background: var(--paper-2);
+    color: var(--ink); font-weight: 600;
+    border-left-color: var(--accent);
+  }
+
+  /* ---------- Map panel ---------- */
+  #map-panel {
+    background: var(--card);
+    border-right: 1px solid var(--line);
+    padding: 28px 32px 20px;
+    display: flex; flex-direction: column;
+    min-width: 0;
+  }
+  #map-container { position: relative; width: 100%; }
+  svg#map { width: 100%; height: auto; display: block; }
+  .country { stroke: var(--card); stroke-width: 0.45; cursor: pointer; transition: stroke-width .1s, filter .1s; }
+  .country:hover { stroke: var(--ink); stroke-width: 1.2; }
+  .country.selected { stroke: var(--ink); stroke-width: 1.8; }
+  .country.no-data { fill: var(--nodata); }
+
+  #tooltip {
+    position: absolute; pointer-events: none;
+    background: var(--ink); color: #F5F5F5;
+    padding: 10px 14px; font-size: 12.5px;
+    border-radius: 2px; line-height: 1.55;
+    opacity: 0; transition: opacity .1s; max-width: 260px;
+    box-shadow: 0 12px 32px rgba(11,18,32,0.28);
+    border-top: 2px solid var(--accent);
+  }
+  #tooltip .name {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500; font-size: 15px; margin-bottom: 3px;
+    color: #FFFFFF; letter-spacing: -0.005em;
+  }
+  #tooltip .val { font-family: "JetBrains Mono", Menlo, Consolas, monospace; color: #FDE68A; }
+
+  #legend {
+    display: flex; align-items: center; gap: 12px;
+    padding: 18px 0 0; font-size: 11px; color: var(--ink-4);
+    font-family: "JetBrains Mono", Menlo, monospace;
+  }
+  #legend .bar { flex: 1; height: 10px; border-radius: 2px; border: 1px solid var(--line); }
+  #legend-categorical {
+    display: flex; flex-wrap: wrap; gap: 10px 22px;
+    padding: 18px 0 0; font-size: 12px; color: var(--ink-2);
+  }
+  #legend-categorical .item { display: flex; align-items: center; gap: 8px; }
+  #legend-categorical .swatch { width: 14px; height: 14px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.08); }
+
+  #explainer {
+    margin-top: 20px; padding: 18px 22px;
+    background: var(--paper-2);
+    border-left: 3px solid var(--accent);
+    font-size: 13.5px; color: var(--ink-2); line-height: 1.65;
+  }
+  #explainer b { color: var(--ink); font-weight: 600; }
+  #explainer em { color: var(--ink); font-style: italic; }
+
+  /* ---------- Detail panel ---------- */
+  #detail-panel {
+    background: var(--card);
+    padding: 32px 28px;
+    min-width: 0;
+  }
+  #detail-panel .eyebrow {
+    font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--accent-2); font-weight: 600; margin-bottom: 10px;
+  }
+  #detail-panel h2 {
+    margin: 0 0 4px 0;
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500; font-size: 26px; letter-spacing: -0.015em;
+    color: var(--ink); line-height: 1.1;
+  }
+  #detail-panel .sub {
+    color: var(--ink-4); font-size: 12px; margin-bottom: 20px;
+    font-family: "JetBrains Mono", Menlo, monospace;
+  }
+  #detail-panel .row {
+    display: flex; justify-content: space-between;
+    padding: 11px 0; border-top: 1px solid var(--line);
+    font-size: 13px; gap: 10px; align-items: baseline;
+  }
+  #detail-panel .row:first-of-type { border-top: none; }
+  #detail-panel .row .k {
+    color: var(--ink-4); font-size: 11.5px; letter-spacing: 0.02em;
+    text-transform: uppercase; font-weight: 500;
+  }
+  #detail-panel .row .v {
+    font-weight: 600; color: var(--ink);
+    font-family: "JetBrains Mono", Menlo, monospace;
+    font-variant-numeric: tabular-nums; font-size: 13px; text-align: right;
+  }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 2px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    font-family: "Inter", sans-serif;
+  }
+  .badge-twin    { background: #FEE2E2; color: #991B1B; }
+  .badge-surplus { background: #D1FAE5; color: #065F46; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    padding: 24px 56px 32px;
+    color: var(--ink-3); font-size: 12px;
+    border-top: 1px solid var(--line);
+    background: var(--card);
+    line-height: 1.7;
+  }
+  footer strong { color: var(--ink-2); font-weight: 600; }
+  footer a { color: var(--accent-2); }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">An Interactive Atlas</div>
+  <h1>International Finance at&nbsp;a&nbsp;Glance</h1>
+  <p class="lede">Exchange rates, purchasing-power parity, the balance of payments, and currency-regime choices &mdash; assembled from live market and institutional data, shaded country by country.</p>
+  <div class="meta-row">
+    <span id="status-chip" class="chip-loading">loading live data</span>
+    <span id="data-timestamp"></span>
+  </div>
+</header>
+
+<main>
+  <aside id="sidebar">
+    <div class="group-label">Indicator</div>
+    <nav id="tabs"></nav>
+  </aside>
+
+  <section id="map-panel">
+    <div id="map-container">
+      <svg id="map" viewBox="0 0 960 500" preserveAspectRatio="xMidYMid meet"></svg>
+      <div id="tooltip"></div>
+    </div>
+    <div id="legend"></div>
+    <div id="legend-categorical" style="display:none"></div>
+    <div id="explainer"></div>
+  </section>
+
+  <aside id="detail-panel">
+    <div class="eyebrow">Country Detail</div>
+    <h2 id="detail-name">Hover a country</h2>
+    <div class="sub" id="detail-sub">Click to pin &middot; click again to unpin.</div>
+    <div id="detail-rows"></div>
+  </aside>
+</main>
+
+<footer>
+  <div><strong>Sources.</strong>
+    Spot FX &mdash; <a href="https://open.er-api.com/" target="_blank" rel="noopener">open.er-api.com</a>.
+    PPP, current-account, and fiscal balance &mdash; <a href="https://data.worldbank.org/" target="_blank" rel="noopener">World Bank Open Data</a>, most-recent observation per country.
+    Big Mac valuation &mdash; <a href="https://github.com/TheEconomistDataTeam/big-mac-data" target="_blank" rel="noopener">The Economist</a>.
+    Exchange-rate regime classification &mdash; <a href="https://www.elibrary-areaer.imf.org/" target="_blank" rel="noopener">IMF AREAER</a>, curated.
+  </div>
+  <div style="margin-top:6px">
+    A static snapshot (early-2025 values) ships as a fallback so the page works offline; live data, when available, overrides the snapshot. Map geometry from <a href="https://github.com/topojson/world-atlas" target="_blank" rel="noopener">world-atlas</a> (Natural Earth, public domain).
+  </div>
+</footer>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://unpkg.com/topojson-client@3"></script>
+<script>
+/* ============================================================================
+   ISO 3166-1 numeric → alpha-3 (covers world-atlas country IDs)
+   ============================================================================ */
+const ISO_N2A3 = {"004":"AFG","008":"ALB","012":"DZA","024":"AGO","031":"AZE","032":"ARG","036":"AUS","040":"AUT","044":"BHS","048":"BHR","050":"BGD","051":"ARM","052":"BRB","056":"BEL","064":"BTN","068":"BOL","070":"BIH","072":"BWA","076":"BRA","084":"BLZ","090":"SLB","096":"BRN","100":"BGR","104":"MMR","108":"BDI","112":"BLR","116":"KHM","120":"CMR","124":"CAN","132":"CPV","140":"CAF","144":"LKA","148":"TCD","152":"CHL","156":"CHN","158":"TWN","170":"COL","174":"COM","178":"COG","180":"COD","188":"CRI","191":"HRV","192":"CUB","196":"CYP","203":"CZE","204":"BEN","208":"DNK","212":"DMA","214":"DOM","218":"ECU","222":"SLV","226":"GNQ","231":"ETH","232":"ERI","233":"EST","242":"FJI","246":"FIN","250":"FRA","262":"DJI","266":"GAB","268":"GEO","270":"GMB","275":"PSE","276":"DEU","288":"GHA","300":"GRC","304":"GRL","308":"GRD","320":"GTM","324":"GIN","328":"GUY","332":"HTI","340":"HND","344":"HKG","348":"HUN","352":"ISL","356":"IND","360":"IDN","364":"IRN","368":"IRQ","372":"IRL","376":"ISR","380":"ITA","384":"CIV","388":"JAM","392":"JPN","398":"KAZ","400":"JOR","404":"KEN","408":"PRK","410":"KOR","414":"KWT","417":"KGZ","418":"LAO","422":"LBN","426":"LSO","428":"LVA","430":"LBR","434":"LBY","440":"LTU","442":"LUX","450":"MDG","454":"MWI","458":"MYS","462":"MDV","466":"MLI","470":"MLT","478":"MRT","480":"MUS","484":"MEX","496":"MNG","498":"MDA","499":"MNE","504":"MAR","508":"MOZ","512":"OMN","516":"NAM","524":"NPL","528":"NLD","540":"NCL","548":"VUT","554":"NZL","558":"NIC","562":"NER","566":"NGA","578":"NOR","586":"PAK","591":"PAN","598":"PNG","600":"PRY","604":"PER","608":"PHL","616":"POL","620":"PRT","624":"GNB","626":"TLS","630":"PRI","634":"QAT","642":"ROU","643":"RUS","646":"RWA","659":"KNA","662":"LCA","670":"VCT","678":"STP","682":"SAU","686":"SEN","688":"SRB","690":"SYC","694":"SLE","702":"SGP","703":"SVK","704":"VNM","705":"SVN","706":"SOM","710":"ZAF","716":"ZWE","724":"ESP","728":"SSD","729":"SDN","732":"ESH","740":"SUR","748":"SWZ","752":"SWE","756":"CHE","760":"SYR","762":"TJK","764":"THA","768":"TGO","780":"TTO","784":"ARE","788":"TUN","792":"TUR","795":"TKM","798":"TUV","800":"UGA","804":"UKR","807":"MKD","818":"EGY","826":"GBR","834":"TZA","840":"USA","854":"BFA","858":"URY","860":"UZB","862":"VEN","882":"WSM","887":"YEM","894":"ZMB","010":"ATA"};
+
+/* ============================================================================
+   ISO 3166-1 alpha-3 → ISO 4217 currency code (for joining live FX rates to countries)
+   ============================================================================ */
+const CURRENCY = {
+  USA:"USD",CAN:"CAD",MEX:"MXN",GTM:"GTQ",CRI:"CRC",PAN:"USD",DOM:"DOP",HND:"HNL",
+  NIC:"NIO",SLV:"USD",HTI:"HTG",CUB:"CUP",JAM:"JMD",BHS:"BSD",TTO:"TTD",BRB:"BBD",
+  BLZ:"BZD",KNA:"XCD",LCA:"XCD",VCT:"XCD",GRD:"XCD",DMA:"XCD",ATG:"XCD",
+  BRA:"BRL",ARG:"ARS",COL:"COP",CHL:"CLP",PER:"PEN",VEN:"VES",URY:"UYU",PRY:"PYG",
+  BOL:"BOB",ECU:"USD",GUY:"GYD",SUR:"SRD",
+  // Euro area
+  DEU:"EUR",FRA:"EUR",ITA:"EUR",ESP:"EUR",NLD:"EUR",BEL:"EUR",AUT:"EUR",PRT:"EUR",
+  IRL:"EUR",FIN:"EUR",GRC:"EUR",LUX:"EUR",SVK:"EUR",SVN:"EUR",EST:"EUR",LVA:"EUR",
+  LTU:"EUR",CYP:"EUR",MLT:"EUR",HRV:"EUR",MNE:"EUR",AND:"EUR",MCO:"EUR",SMR:"EUR",
+  // Non-euro Europe
+  DNK:"DKK",SWE:"SEK",NOR:"NOK",CHE:"CHF",GBR:"GBP",ISL:"ISK",POL:"PLN",CZE:"CZK",
+  HUN:"HUF",ROU:"RON",BGR:"BGN",SRB:"RSD",UKR:"UAH",RUS:"RUB",BLR:"BYN",MDA:"MDL",
+  MKD:"MKD",ALB:"ALL",BIH:"BAM",
+  // Asia
+  CHN:"CNY",JPN:"JPY",KOR:"KRW",IND:"INR",IDN:"IDR",PHL:"PHP",THA:"THB",VNM:"VND",
+  MYS:"MYR",SGP:"SGD",HKG:"HKD",TWN:"TWD",PAK:"PKR",BGD:"BDT",LKA:"LKR",NPL:"NPR",
+  AFG:"AFN",KAZ:"KZT",UZB:"UZS",KGZ:"KGS",TJK:"TJS",AZE:"AZN",GEO:"GEL",ARM:"AMD",
+  MNG:"MNT",KHM:"KHR",LAO:"LAK",MMR:"MMK",BTN:"BTN",MDV:"MVR",PRK:"KPW",TKM:"TMT",
+  BRN:"BND",TLS:"USD",
+  // Middle East & Turkey
+  TUR:"TRY",SAU:"SAR",ARE:"AED",QAT:"QAR",KWT:"KWD",OMN:"OMR",BHR:"BHD",ISR:"ILS",
+  JOR:"JOD",LBN:"LBP",IRN:"IRR",IRQ:"IQD",SYR:"SYP",YEM:"YER",PSE:"ILS",
+  // Africa
+  EGY:"EGP",MAR:"MAD",TUN:"TND",DZA:"DZD",LBY:"LYD",SDN:"SDG",SSD:"SSP",NGA:"NGN",
+  ETH:"ETB",KEN:"KES",GHA:"GHS",ZAF:"ZAR",UGA:"UGX",TZA:"TZS",ZMB:"ZMW",ZWE:"ZWL",
+  AGO:"AOA",MUS:"MUR",MDG:"MGA",GIN:"GNF",LBR:"LRD",SLE:"SLE",RWA:"RWF",BDI:"BIF",
+  MOZ:"MZN",MWI:"MWK",BWA:"BWP",NAM:"NAD",LSO:"LSL",SWZ:"SZL",COD:"CDF",ERI:"ERN",
+  SOM:"SOS",DJI:"DJF",GMB:"GMD",MRT:"MRU",
+  // CFA franc zones (XOF = West African CFA, XAF = Central African CFA) — pegged to EUR
+  BEN:"XOF",BFA:"XOF",CIV:"XOF",GNB:"XOF",MLI:"XOF",NER:"XOF",SEN:"XOF",TGO:"XOF",
+  CMR:"XAF",CAF:"XAF",TCD:"XAF",COG:"XAF",GNQ:"XAF",GAB:"XAF",
+  COM:"KMF",STP:"STN",CPV:"CVE",
+  // Oceania
+  AUS:"AUD",NZL:"NZD",FJI:"FJD",PNG:"PGK",SLB:"SBD",VUT:"VUV",WSM:"WST",TON:"TOP",
+};
+
+/* ============================================================================
+   Static snapshot (late-2024 / early-2025 values) — fallback if live fetch fails.
+   ER = local currency per USD, PPP = LCU per international $,
+   CA & FISC = % GDP, BM = Big Mac under/over-valuation vs USD (decimal).
+   ============================================================================ */
+const STATIC = {
+  USA:{er:1.00,    ppp:1.00,  ca:-3.4, fisc:-6.4, bm: 0.00},
+  CAN:{er:1.42,    ppp:1.24,  ca:-0.5, fisc:-1.2, bm:-0.10},
+  MEX:{er:20.0,    ppp:10.3,  ca:-0.3, fisc:-4.9, bm:-0.19},
+  GTM:{er:7.72,    ppp:4.20,  ca: 2.5, fisc:-1.5},
+  CRI:{er:510,     ppp:350,   ca:-1.7, fisc:-2.8, bm:-0.15},
+  PAN:{er:1.00,    ppp:0.58,  ca:-5.0, fisc:-3.5},
+  DOM:{er:60.5,    ppp:24.5,  ca:-3.5, fisc:-3.0},
+  HND:{er:25.3,    ppp:10.8,  ca:-4.0, fisc:-2.5},
+  NIC:{er:36.7,    ppp:15.0,  ca: 2.4, fisc:-0.5},
+  SLV:{er:1.00,    ppp:0.52,  ca:-1.5, fisc:-3.2},
+  HTI:{er:132,     ppp:60,    ca:-1.5, fisc:-3.5},
+  CUB:{er:120,     ppp:30,    ca:-1.5, fisc:-8.0},
+  JAM:{er:156,     ppp:80,    ca:-0.8, fisc: 0.0},
+  BHS:{er:1.00,    ppp:0.90,  ca:-8.0, fisc:-1.5},
+  TTO:{er:6.78,    ppp:3.4,   ca: 5.0, fisc:-0.5},
+  BRB:{er:2.00,    ppp:1.75,  ca:-7.0, fisc:-2.5},
+  BLZ:{er:2.00,    ppp:1.20,  ca:-1.5, fisc: 1.0},
+
+  BRA:{er:5.80,    ppp:2.70,  ca:-2.1, fisc:-8.8, bm: 0.05},
+  ARG:{er:1050,    ppp:520,   ca: 0.3, fisc: 0.3, bm: 0.22},
+  COL:{er:4150,    ppp:1580,  ca:-2.0, fisc:-5.3, bm:-0.30},
+  CHL:{er:970,     ppp:485,   ca:-2.5, fisc:-2.4, bm:-0.18},
+  PER:{er:3.74,    ppp:1.95,  ca: 1.6, fisc:-2.6, bm:-0.23},
+  VEN:{er:52,      ppp:18,    ca: 1.5, fisc:-4.0},
+  URY:{er:42.0,    ppp:28.5,  ca:-2.5, fisc:-3.5, bm:-0.05},
+  PRY:{er:7900,    ppp:2750,  ca: 0.5, fisc:-3.2},
+  BOL:{er:6.91,    ppp:3.20,  ca:-3.0, fisc:-9.0},
+  ECU:{er:1.00,    ppp:0.59,  ca: 2.0, fisc:-2.3},
+  GUY:{er:209,     ppp:120,   ca:22.0, fisc: 1.5},
+  SUR:{er:37.0,    ppp:15,    ca: 1.5, fisc: 0.5},
+
+  DEU:{er:0.95,    ppp:0.78,  ca: 5.9, fisc:-2.1, bm:-0.04},
+  FRA:{er:0.95,    ppp:0.79,  ca:-0.4, fisc:-6.1, bm:-0.05},
+  ITA:{er:0.95,    ppp:0.73,  ca: 1.1, fisc:-3.8, bm:-0.05},
+  ESP:{er:0.95,    ppp:0.66,  ca: 3.2, fisc:-3.3, bm:-0.14},
+  NLD:{er:0.95,    ppp:0.79,  ca:10.3, fisc:-0.6, bm: 0.02},
+  BEL:{er:0.95,    ppp:0.81,  ca:-0.6, fisc:-4.6},
+  AUT:{er:0.95,    ppp:0.78,  ca: 2.1, fisc:-3.7, bm: 0.08},
+  PRT:{er:0.95,    ppp:0.62,  ca: 2.8, fisc: 0.4, bm:-0.15},
+  GRC:{er:0.95,    ppp:0.63,  ca:-6.4, fisc: 1.0, bm:-0.12},
+  IRL:{er:0.95,    ppp:0.89,  ca: 10.0,fisc: 2.3, bm:-0.05},
+  FIN:{er:0.95,    ppp:0.92,  ca:-2.4, fisc:-4.5, bm:-0.01},
+  SVK:{er:0.95,    ppp:0.56,  ca:-2.5, fisc:-5.8},
+  SVN:{er:0.95,    ppp:0.64,  ca: 3.7, fisc:-2.6},
+  EST:{er:0.95,    ppp:0.65,  ca:-0.5, fisc:-3.0, bm:-0.04},
+  LVA:{er:0.95,    ppp:0.58,  ca:-4.2, fisc:-2.5},
+  LTU:{er:0.95,    ppp:0.57,  ca: 2.1, fisc:-1.4, bm:-0.05},
+  CYP:{er:0.95,    ppp:0.68,  ca:-10.0,fisc: 2.2},
+  MLT:{er:0.95,    ppp:0.68,  ca: 5.3, fisc:-4.0},
+  LUX:{er:0.95,    ppp:0.87,  ca: 5.0, fisc: 0.3},
+  HRV:{er:0.95,    ppp:0.52,  ca: 0.6, fisc:-2.7},
+  DNK:{er:7.07,    ppp:7.38,  ca:13.0, fisc: 3.2, bm: 0.08},
+  SWE:{er:10.8,    ppp:9.24,  ca: 7.1, fisc:-1.3, bm: 0.08},
+  NOR:{er:11.1,    ppp:10.20, ca:16.8, fisc:15.7, bm: 0.22},
+  CHE:{er:0.89,    ppp:1.18,  ca: 7.5, fisc: 0.4, bm: 0.40},
+  GBR:{er:0.79,    ppp:0.70,  ca:-3.0, fisc:-4.5, bm:-0.02},
+  ISL:{er:140,     ppp:146,   ca: 1.0, fisc:-0.2, bm: 0.05},
+  POL:{er:4.08,    ppp:1.95,  ca: 0.3, fisc:-5.7, bm:-0.12},
+  CZE:{er:24.0,    ppp:13.0,  ca: 0.9, fisc:-2.2, bm:-0.13},
+  HUN:{er:385,     ppp:188,   ca: 2.0, fisc:-4.5, bm:-0.20},
+  ROU:{er:4.60,    ppp:1.98,  ca:-7.0, fisc:-6.5, bm:-0.25},
+  BGR:{er:1.85,    ppp:0.85,  ca:-0.2, fisc:-3.0},
+  SRB:{er:110,     ppp:55,    ca:-2.0, fisc:-2.0},
+  UKR:{er:41.5,    ppp:12.0,  ca:-5.5, fisc:-17.0,bm:-0.55},
+  RUS:{er:100,     ppp:34,    ca: 2.7, fisc:-1.7, bm:-0.66},
+  BLR:{er:3.35,    ppp:1.30,  ca:-3.0, fisc:-2.0},
+  MDA:{er:18.5,    ppp:7.10,  ca:-9.5, fisc:-4.0, bm:-0.42},
+  MKD:{er:58.5,    ppp:25,    ca: 0.5, fisc:-4.5},
+  ALB:{er:94,      ppp:44,    ca:-1.0, fisc:-2.2},
+  BIH:{er:1.85,    ppp:0.85,  ca:-3.5, fisc: 0.3},
+  MNE:{er:0.95,    ppp:0.55,  ca:-11.5,fisc:-2.0},
+
+  CHN:{er:7.23,    ppp:4.19,  ca: 1.4, fisc:-7.1, bm:-0.36},
+  JPN:{er:150.5,   ppp:96.3,  ca: 4.8, fisc:-5.8, bm:-0.45},
+  KOR:{er:1450,    ppp:880,   ca: 4.0, fisc:-1.5, bm:-0.28},
+  IND:{er:85.5,    ppp:22.5,  ca:-1.2, fisc:-7.7, bm:-0.55},
+  IDN:{er:16000,   ppp:4800,  ca:-0.6, fisc:-2.5, bm:-0.43},
+  PHL:{er:58.0,    ppp:19.5,  ca:-2.0, fisc:-5.5, bm:-0.43},
+  THA:{er:34.0,    ppp:12.4,  ca: 1.8, fisc:-3.5, bm:-0.30},
+  VNM:{er:25000,   ppp:8250,  ca: 5.0, fisc:-3.0, bm:-0.49},
+  MYS:{er:4.45,    ppp:1.62,  ca: 2.1, fisc:-4.5, bm:-0.55},
+  SGP:{er:1.36,    ppp:0.85,  ca:17.5, fisc: 1.3, bm:-0.10},
+  HKG:{er:7.78,    ppp:5.80,  ca: 5.5, fisc:-5.0, bm:-0.45},
+  TWN:{er:32.5,    ppp:15.2,  ca:14.5, fisc:-0.4, bm:-0.45},
+  PAK:{er:280,     ppp:48,    ca:-0.5, fisc:-6.8, bm:-0.60},
+  BGD:{er:120,     ppp:37,    ca:-1.0, fisc:-4.5},
+  LKA:{er:296,     ppp:130,   ca: 1.8, fisc:-6.3, bm:-0.58},
+  NPL:{er:137,     ppp:42,    ca: 1.0, fisc:-3.5},
+  AFG:{er:70,      ppp:25,    ca:-3.0, fisc:-2.0},
+  KAZ:{er:510,     ppp:195,   ca:-2.5, fisc:-2.5},
+  UZB:{er:12800,   ppp:3900,  ca:-5.3, fisc:-4.5},
+  KGZ:{er:87,      ppp:27,    ca:-10.0,fisc:-0.5},
+  TJK:{er:10.8,    ppp:3.70,  ca:-3.5, fisc:-1.5},
+  AZE:{er:1.70,    ppp:0.66,  ca:11.0, fisc: 2.5, bm:-0.40},
+  GEO:{er:2.75,    ppp:1.16,  ca:-5.5, fisc:-2.5},
+  ARM:{er:396,     ppp:161,   ca:-3.2, fisc:-4.0},
+  MNG:{er:3420,    ppp:1130,  ca:-5.0, fisc:-1.5},
+  KHM:{er:4080,    ppp:1500,  ca:-3.0, fisc:-1.5},
+  LAO:{er:21800,   ppp:5500,  ca: 2.0, fisc: 0.0},
+  MMR:{er:3500,    ppp:700,   ca:-4.0, fisc:-5.0},
+  BTN:{er:85.5,    ppp:30,    ca:-25.0,fisc:-3.0},
+  MDV:{er:15.4,    ppp:9.0,   ca:-17.0,fisc:-9.0},
+  PRK:{er:900,     ppp:400,   ca: 0.0, fisc: 0.0},
+
+  SAU:{er:3.75,    ppp:2.04,  ca: 2.5, fisc:-3.0, bm:-0.38},
+  ARE:{er:3.67,    ppp:2.30,  ca: 8.5, fisc: 4.5, bm:-0.22},
+  QAT:{er:3.64,    ppp:2.18,  ca:14.0, fisc: 4.0, bm:-0.40},
+  KWT:{er:0.308,   ppp:0.20,  ca:27.0, fisc: 4.0, bm:-0.40},
+  OMN:{er:0.385,   ppp:0.21,  ca: 2.0, fisc: 3.5},
+  BHR:{er:0.376,   ppp:0.21,  ca: 6.5, fisc:-5.5},
+  ISR:{er:3.65,    ppp:3.95,  ca: 5.0, fisc:-6.8, bm: 0.08},
+  JOR:{er:0.709,   ppp:0.33,  ca:-6.5, fisc:-3.5, bm:-0.47},
+  LBN:{er:89500,   ppp:8000,  ca:-15.0,fisc:-6.0, bm:-0.70},
+  IRN:{er:42000,   ppp:40000, ca: 3.0, fisc:-2.5},
+  IRQ:{er:1310,    ppp:850,   ca: 3.0, fisc:-5.0},
+  SYR:{er:13000,   ppp:2000,  ca:-10.0,fisc:-5.0},
+  YEM:{er:540,     ppp:250,   ca:-2.0, fisc:-5.0},
+
+  EGY:{er:50.0,    ppp:10.5,  ca:-6.5, fisc:-8.0, bm:-0.62},
+  MAR:{er:10.05,   ppp:4.24,  ca:-1.0, fisc:-4.0, bm:-0.50},
+  TUN:{er:3.15,    ppp:1.20,  ca:-2.5, fisc:-6.0},
+  DZA:{er:134,     ppp:42,    ca:-2.5, fisc:-6.5},
+  LBY:{er:4.85,    ppp:2.30,  ca: 2.0, fisc: 0.0},
+  SDN:{er:2500,    ppp:200,   ca:-10.0,fisc:-5.0},
+  SSD:{er:3500,    ppp:600,   ca: 0.0, fisc:-5.0},
+  NGA:{er:1500,    ppp:400,   ca: 2.0, fisc:-4.5},
+  ETH:{er:120,     ppp:22,    ca:-3.5, fisc:-2.4},
+  KEN:{er:130,     ppp:48,    ca:-3.5, fisc:-5.5, bm:-0.48},
+  GHA:{er:15.3,    ppp:4.50,  ca: 2.0, fisc:-5.5},
+  ZAF:{er:18.8,    ppp:7.71,  ca:-1.6, fisc:-6.0, bm:-0.55},
+  UGA:{er:3680,    ppp:1280,  ca:-6.0, fisc:-5.0},
+  TZA:{er:2500,    ppp:900,   ca:-4.0, fisc:-3.5},
+  ZMB:{er:27.0,    ppp:6.0,   ca: 1.0, fisc:-6.5},
+  ZWE:{er:26,      ppp:500,   ca: 1.5, fisc:-2.0},
+  AGO:{er:900,     ppp:180,   ca: 4.5, fisc: 0.0},
+  CIV:{er:590,     ppp:250,   ca:-5.5, fisc:-4.5},
+  SEN:{er:590,     ppp:225,   ca:-9.0, fisc:-5.0},
+  CMR:{er:590,     ppp:240,   ca:-4.0, fisc:-1.5},
+  MDG:{er:4560,    ppp:1360,  ca:-5.5, fisc:-4.0},
+  MUS:{er:46.5,    ppp:19,    ca:-5.5, fisc:-4.0},
+  BFA:{er:590,     ppp:230,   ca:-5.5, fisc:-6.5},
+  MLI:{er:590,     ppp:240,   ca:-7.0, fisc:-4.0},
+  NER:{er:590,     ppp:230,   ca:-15.5,fisc:-4.5},
+  TGO:{er:590,     ppp:240,   ca:-3.5, fisc:-6.8},
+  BEN:{er:590,     ppp:245,   ca:-6.5, fisc:-4.5},
+  GIN:{er:8620,    ppp:3500,  ca:-3.5, fisc:-1.5},
+  GNB:{er:590,     ppp:240,   ca:-6.0, fisc:-3.5},
+  LBR:{er:190,     ppp:80,    ca:-20.0,fisc:-5.0},
+  SLE:{er:22500,   ppp:6000,  ca:-4.0, fisc:-5.5},
+  RWA:{er:1400,    ppp:395,   ca:-12.0,fisc:-6.0},
+  BDI:{er:2950,    ppp:900,   ca:-15.0,fisc:-5.5},
+  MOZ:{er:64.0,    ppp:23,    ca:-10.5,fisc:-4.5},
+  MWI:{er:1750,    ppp:400,   ca:-13.0,fisc:-9.0},
+  BWA:{er:13.8,    ppp:5.4,   ca:-0.5, fisc:-4.5},
+  NAM:{er:18.8,    ppp:8.3,   ca:-8.5, fisc:-3.5},
+  LSO:{er:18.8,    ppp:6.0,   ca:-4.0, fisc: 0.5},
+  SWZ:{er:18.8,    ppp:6.2,   ca: 1.0, fisc:-4.0},
+  COD:{er:2850,    ppp:900,   ca:-5.5, fisc:-1.5},
+  COG:{er:590,     ppp:250,   ca: 2.0, fisc: 3.0},
+  TCD:{er:590,     ppp:240,   ca:-2.0, fisc: 1.0},
+  CAF:{er:590,     ppp:260,   ca:-7.0, fisc:-5.0},
+  GAB:{er:590,     ppp:270,   ca:-4.0, fisc:-1.5},
+  GNQ:{er:590,     ppp:370,   ca:-4.0, fisc:-2.5},
+  ERI:{er:15.0,    ppp:6.0,   ca: 7.0, fisc:-3.0},
+  SOM:{er:570,     ppp:200,   ca:-7.0, fisc:-1.0},
+  DJI:{er:178,     ppp:95,    ca:15.0, fisc:-1.0},
+
+  AUS:{er:1.58,    ppp:1.54,  ca:-1.0, fisc:-2.5, bm:-0.04},
+  NZL:{er:1.71,    ppp:1.47,  ca:-6.5, fisc:-3.0, bm:-0.03},
+  FJI:{er:2.30,    ppp:1.06,  ca:-5.0, fisc:-4.0},
+  PNG:{er:3.95,    ppp:1.80,  ca:18.0, fisc:-3.5},
+  SLB:{er:8.55,    ppp:6.0,   ca:-10.0,fisc:-3.5},
+  VUT:{er:120,     ppp:85,    ca: 0.5, fisc: 0.0},
+  WSM:{er:2.80,    ppp:1.30,  ca:-1.0, fisc: 1.0},
+};
+
+/* ============================================================================
+   Exchange rate regime (IMF AREAER 2023, simplified to 5 buckets)
+   ============================================================================ */
+const ER_REGIME = {
+  USA:"float",CAN:"float",GBR:"float",JPN:"float",AUS:"float",NZL:"float",
+  CHE:"float",SWE:"float",NOR:"float",ISL:"float",KOR:"float",MEX:"float",
+  CHL:"float",COL:"float",BRA:"float",PER:"float",ZAF:"float",POL:"float",
+  CZE:"float",HUN:"float",ROU:"float",TUR:"float",PHL:"float",IDN:"float",
+  THA:"float",ISR:"float",UGA:"float",ALB:"float",SRB:"float",DOM:"float",
+  PRY:"float",URY:"float",GTM:"float",HND:"float",JAM:"float",
+
+  IND:"managed",CHN:"managed",RUS:"managed",VNM:"managed",EGY:"managed",
+  NGA:"managed",PAK:"managed",KAZ:"managed",MYS:"managed",BGD:"managed",
+  ARG:"managed",DZA:"managed",UKR:"managed",KGZ:"managed",TZA:"managed",
+  MMR:"managed",LKA:"managed",MDA:"managed",GEO:"managed",GHA:"managed",
+  KEN:"managed",MNG:"managed",MAR:"managed",TUN:"managed",ETH:"managed",
+  LAO:"managed",VEN:"managed",
+
+  DNK:"peg",HKG:"peg",SAU:"peg",ARE:"peg",QAT:"peg",OMN:"peg",BHR:"peg",
+  JOR:"peg",LBN:"peg",IRQ:"peg",IRN:"peg",YEM:"peg",LBY:"peg",AZE:"peg",
+  UZB:"peg",TKM:"peg",NPL:"peg",BTN:"peg",MKD:"peg",BIH:"peg",FJI:"peg",
+  CPV:"peg",STP:"peg",BHS:"peg",BRB:"peg",BLZ:"peg",AGO:"peg",RWA:"peg",
+  ERI:"peg",SDN:"peg",SYR:"peg",SOM:"peg",ZWE:"peg",BDI:"peg",SWZ:"peg",
+  NAM:"peg",LSO:"peg",DJI:"peg",TTO:"peg",SYC:"peg",
+  BEN:"peg",BFA:"peg",CIV:"peg",GNB:"peg",MLI:"peg",NER:"peg",SEN:"peg",
+  TGO:"peg",CMR:"peg",CAF:"peg",TCD:"peg",COG:"peg",GNQ:"peg",GAB:"peg",COM:"peg",
+
+  ECU:"hardpeg",SLV:"hardpeg",PAN:"hardpeg",MNE:"hardpeg",BRN:"hardpeg",
+  TLS:"hardpeg",BGR:"hardpeg",
+
+  DEU:"euro",FRA:"euro",ITA:"euro",ESP:"euro",NLD:"euro",BEL:"euro",
+  AUT:"euro",PRT:"euro",IRL:"euro",FIN:"euro",GRC:"euro",LUX:"euro",
+  SVK:"euro",SVN:"euro",EST:"euro",LVA:"euro",LTU:"euro",CYP:"euro",
+  MLT:"euro",HRV:"euro",
+};
+
+/* ============================================================================
+   Indicator configuration
+   ============================================================================ */
+const INDICATORS = [
+  { id:"er", label:"Exchange rate vs USD",
+    blurb:"Local currency units per US dollar — <b>live daily spot rate</b> from open.er-api.com (falls back to recent annual averages if the API is unavailable). Shown on a <b>log scale</b> because values span 0.3 to 100,000+. Darker = more LCU per dollar (local currency is weaker in nominal terms).",
+    scale:"log", domain:[0.3, 30000], colors:["#dbeafe","#1e3a8a"],
+    format:v => v<1?v.toFixed(3):v<100?v.toFixed(2):v<10000?Math.round(v).toLocaleString():Math.round(v).toLocaleString(),
+    unit:"LCU / $"
+  },
+  { id:"ppp", label:"PPP vs market rate",
+    blurb:"<b>(PPP conversion factor / market exchange rate) − 1.</b> Negative (blue) = local currency is <b>under</b>valued against PPP — a dollar buys more in that country than the market rate would suggest. Positive (red) = local currency is <b>over</b>valued. Uses live World Bank PPP factors divided by today's spot rate.",
+    scale:"diverging", domain:[-0.8, 0.4], colors:["#1d4ed8","#f1f5f9","#b91c1c"],
+    format:v => (v>=0?"+":"")+(v*100).toFixed(0)+"%", unit:""
+  },
+  { id:"bigmac", label:"Big Mac Index",
+    blurb:"The Economist's <b>Big Mac Index</b> (latest release from their GitHub): implied under/overvaluation of the local currency vs the dollar, via the price of a single globally-standardized good. Negative = Big Mac is cheaper than in the U.S. at the market exchange rate → currency looks undervalued. A real-world sanity check on PPP.",
+    scale:"diverging", domain:[-0.7, 0.45], colors:["#1d4ed8","#f1f5f9","#b91c1c"],
+    format:v => (v>=0?"+":"")+(v*100).toFixed(0)+"%", unit:""
+  },
+  { id:"ca", label:"Current account (% GDP)",
+    blurb:"Net exports + net factor income + net transfers, as a share of GDP. Live from World Bank (most recent observation per country, typically last 1–2 years). <b>Red</b> = deficit (country borrows from the world); <b>green</b> = surplus (lends to the world).",
+    scale:"diverging", domain:[-10,10], colors:["#b91c1c","#f1f5f9","#047857"],
+    format:v => (v>=0?"+":"")+v.toFixed(1)+"%", unit:"% GDP"
+  },
+  { id:"ka", label:"Capital & financial inflows (% GDP)",
+    blurb:"Net capital + financial inflows as a share of GDP, via the BoP identity: what a country cannot finance from domestic saving it finances by net borrowing from abroad. Deficit countries receive net inflows (green); surplus countries send funds abroad (red).",
+    scale:"diverging", domain:[-10,10], colors:["#047857","#f1f5f9","#b91c1c"],
+    format:v => (v>=0?"+":"")+v.toFixed(1)+"%", unit:"% GDP"
+  },
+  { id:"twin", label:"Twin deficits",
+    blurb:"<b>Twin deficit</b> = country runs <em>both</em> a current-account deficit <em>and</em> a fiscal deficit in the latest data. Red = twin deficit; green = current-account surplus; gray = mixed (single deficit) or data missing. The twin-deficit pattern motivates the saving-investment view: private + public dissaving at home is financed by net borrowing from abroad.",
+    scale:"categorical", categories:{
+      twin:       {label:"Twin deficit (CA<0 & fiscal<0)", color:"#dc2626"},
+      ca_surplus: {label:"Current-account surplus",         color:"#047857"},
+      mixed:      {label:"Mixed / single deficit",          color:"#94a3b8"},
+    },
+    format:v => ({twin:"Twin deficit",ca_surplus:"CA surplus",mixed:"Mixed"}[v]||"—")
+  },
+  { id:"regime", label:"Exchange rate regime",
+    blurb:"IMF <em>Annual Report on Exchange Arrangements and Exchange Restrictions</em> (AREAER 2023, curated — IMF has no public API for this series). Free-floating economies let the market set their exchange rate; hard-peggers give up monetary autonomy to import price stability; most developing-country regimes fall in the middle.",
+    scale:"categorical", categories:{
+      float:   {label:"Free floating",               color:"#1d4ed8"},
+      managed: {label:"Floating / managed",          color:"#60a5fa"},
+      peg:     {label:"Peg / stabilized / crawl",    color:"#f59e0b"},
+      hardpeg: {label:"Currency board / dollarized", color:"#b45309"},
+      euro:    {label:"Eurozone member",             color:"#6366f1"},
+    },
+    format:v => ({float:"Free floating",managed:"Floating / managed",peg:"Peg / stabilized / crawl",hardpeg:"Currency board / hard peg",euro:"Eurozone"}[v]||"—")
+  },
+];
+
+/* ============================================================================
+   Live fetchers
+   ============================================================================ */
+const WB = "https://api.worldbank.org/v2";
+
+// Fetch most-recent non-null WB indicator value per country → { ISO3: {year, value} }
+async function fetchWB(indicator) {
+  const url = `${WB}/country/all/indicator/${indicator}?format=json&per_page=20000&mrnev=1`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`WB ${indicator} HTTP ${r.status}`);
+  const j = await r.json();
+  const rows = j[1] || [];
+  const out = {};
+  for (const row of rows) {
+    if (row.value == null) continue;
+    const iso3 = row.countryiso3code || row.country?.id;
+    if (!iso3 || iso3.length !== 3) continue;
+    out[iso3] = { year:+row.date, value:+row.value };
+  }
+  return out;
+}
+
+// Fetch today's USD→currency rates → { CCY: rate }
+async function fetchFX() {
+  const r = await fetch("https://open.er-api.com/v6/latest/USD");
+  if (!r.ok) throw new Error(`FX HTTP ${r.status}`);
+  const j = await r.json();
+  if (j.result !== "success") throw new Error("FX result not success");
+  return { rates: j.rates, date: j.time_last_update_utc };
+}
+
+// Fetch most recent Big Mac row per country → { ISO3: { date, over } }
+async function fetchBigMac() {
+  const url = "https://raw.githubusercontent.com/TheEconomistDataTeam/big-mac-data/master/output-data/big-mac-full-index.csv";
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`BigMac HTTP ${r.status}`);
+  const text = await r.text();
+  const rows = d3.csvParse(text);
+  const byIso = {};
+  for (const row of rows) {
+    const iso = row.iso_a3;
+    if (!iso) continue;
+    const d = new Date(row.date);
+    const raw = parseFloat(row.USD_raw ?? row.usd_raw ?? "");
+    if (!isFinite(raw)) continue;
+    if (!byIso[iso] || d > byIso[iso].date) {
+      byIso[iso] = { date:d, over:raw };
+    }
+  }
+  return byIso;
+}
+
+/* ============================================================================
+   State + rendering
+   ============================================================================ */
+let state = {
+  world:null, countries:null, current:"er", pinned:null,
+  data: {},              // merged per-country { er, ppp, ca, fisc, bm, sources: {...} }
+  statusParts: { fx:"static", wb:"static", bm:"static" },
+  fxDate: null, dataYears: {},
+};
+
+const width = 960, height = 500;
+const svg = d3.select("#map");
+const tooltip = d3.select("#tooltip");
+const projection = d3.geoNaturalEarth1().scale(175).translate([width/2, height/2]);
+const path = d3.geoPath(projection);
+
+function setStatus(msg) {
+  svg.html("");
+  svg.append("text")
+    .attr("x", width/2).attr("y", height/2)
+    .attr("text-anchor","middle").attr("fill","#64748b").attr("font-size","14px")
+    .text(msg);
+}
+
+function mergeData({fx, wbFX, wbPPP, wbCA, wbFisc, bigmac}) {
+  // Start from static snapshot, overlay live values where we have them.
+  const out = {};
+  const allIso = new Set([
+    ...Object.keys(STATIC),
+    ...Object.keys(wbPPP || {}),
+    ...Object.keys(wbCA || {}),
+    ...Object.keys(wbFisc || {}),
+    ...Object.keys(bigmac || {}),
+  ]);
+  for (const iso of allIso) {
+    const s = STATIC[iso] || {};
+    const src = { er:"static", ppp:"static", ca:"static", fisc:"static", bm:"static" };
+    let er = s.er ?? null;
+    // Live FX: look up country's currency; some (e.g., USA→USD) will be 1 directly.
+    const ccy = CURRENCY[iso];
+    if (fx && ccy) {
+      if (ccy === "USD") { er = 1; src.er = "live"; }
+      else if (typeof fx.rates[ccy] === "number" && fx.rates[ccy] > 0) {
+        er = fx.rates[ccy]; src.er = "live";
+      }
+    } else if (fx && wbFX && wbFX[iso]) {
+      // Fall back to WB annual average
+      er = wbFX[iso].value; src.er = "wb";
+    }
+    const ppp  = wbPPP?.[iso]?.value  ?? s.ppp  ?? null; if (wbPPP?.[iso])  src.ppp  = "live";
+    const ca   = wbCA?.[iso]?.value   ?? s.ca   ?? null; if (wbCA?.[iso])   src.ca   = "live";
+    const fisc = wbFisc?.[iso]?.value ?? s.fisc ?? null; if (wbFisc?.[iso]) src.fisc = "live";
+    const bm   = bigmac?.[iso]?.over  ?? s.bm   ?? null; if (bigmac?.[iso]) src.bm   = "live";
+    out[iso] = { er, ppp, ca, fisc, bm, sources: src,
+                 pppYear: wbPPP?.[iso]?.year, caYear: wbCA?.[iso]?.year,
+                 fiscYear: wbFisc?.[iso]?.year, bmDate: bigmac?.[iso]?.date };
+  }
+  return out;
+}
+
+function valueFor(iso3, id) {
+  const d = state.data[iso3];
+  switch (id) {
+    case "er":     return d?.er ?? null;
+    case "ppp":    return (d?.ppp != null && d?.er != null && d.er !== 0) ? (d.ppp/d.er - 1) : null;
+    case "bigmac": return d?.bm ?? null;
+    case "ca":     return d?.ca ?? null;
+    case "ka":     return d?.ca != null ? -d.ca : null;
+    case "twin": {
+      if (!d || d.ca == null) return null;
+      if (d.ca >= 0) return "ca_surplus";
+      if (d.fisc != null && d.fisc < 0) return "twin";
+      return "mixed";
+    }
+    case "regime": return ER_REGIME[iso3] ?? null;
+    default:       return null;
+  }
+}
+
+function colorScaleFor(ind) {
+  if (ind.scale === "log") return d3.scaleLog().domain(ind.domain).range(ind.colors).clamp(true);
+  if (ind.scale === "diverging") {
+    const [lo, mid, hi] = ind.colors;
+    return d3.scaleLinear().domain([ind.domain[0], 0, ind.domain[1]]).range([lo, mid, hi]).clamp(true);
+  }
+  if (ind.scale === "categorical") return v => ind.categories[v]?.color ?? "#e5e7eb";
+  return () => "#e5e7eb";
+}
+
+function buildTabs() {
+  d3.select("#tabs").selectAll("button").data(INDICATORS).join("button")
+    .attr("class", "tab-btn")
+    .attr("data-id", d => d.id)
+    .text(d => d.label)
+    .on("click", (_, d) => setIndicator(d.id));
+}
+
+function drawMap() {
+  svg.html("");
+  const g = svg.append("g");
+  g.selectAll("path.country")
+    .data(state.countries.features)
+    .join("path")
+    .attr("class","country")
+    .attr("d", path)
+    .attr("data-id", d => d.id)
+    .on("mousemove", (ev, d) => showTooltip(ev, d))
+    .on("mouseleave", hideTooltip)
+    .on("click", (ev, d) => pinCountry(d));
+}
+
+function setIndicator(id) {
+  state.current = id;
+  const ind = INDICATORS.find(i => i.id === id);
+  d3.selectAll("#tabs button").classed("active", d => d?.id === id);
+  const scale = colorScaleFor(ind);
+  svg.selectAll("path.country")
+    .attr("fill", d => {
+      const iso = ISO_N2A3[String(d.id).padStart(3,"0")];
+      const v = iso ? valueFor(iso, id) : null;
+      if (v == null || (typeof v === "number" && !isFinite(v))) return "#e5e7eb";
+      return scale(v);
+    });
+  drawLegend(ind, scale);
+  document.getElementById("explainer").innerHTML = ind.blurb;
+  if (state.pinned) updateDetailPanel(state.pinned);
+}
+
+function drawLegend(ind, scale) {
+  const cont = document.getElementById("legend");
+  const cat  = document.getElementById("legend-categorical");
+  if (ind.scale === "categorical") {
+    cont.style.display = "none";
+    cat.style.display = "flex";
+    cat.innerHTML = Object.entries(ind.categories).map(([k,v]) =>
+      `<div class="item"><span class="swatch" style="background:${v.color}"></span>${v.label}</div>`
+    ).join("") + `<div class="item"><span class="swatch" style="background:#e5e7eb"></span>No data</div>`;
+    return;
+  }
+  cont.style.display = "flex"; cat.style.display = "none";
+  const n = 20;
+  const stops = d3.range(n+1).map(i => {
+    let v;
+    if (ind.scale === "log") v = Math.pow(10, Math.log10(ind.domain[0]) + (Math.log10(ind.domain[1])-Math.log10(ind.domain[0])) * i/n);
+    else v = ind.domain[0] + (ind.domain[1]-ind.domain[0])*i/n;
+    return `${scale(v)} ${(i/n*100).toFixed(0)}%`;
+  });
+  const [lo,hi] = ind.domain;
+  const lblLo = ind.scale === "log" ? lo : ind.format(lo);
+  const lblHi = ind.scale === "log" ? hi.toLocaleString() : ind.format(hi);
+  cont.innerHTML = `<span>${lblLo}</span><div class="bar" style="background: linear-gradient(to right, ${stops.join(",")})"></div><span>${lblHi}</span>`;
+}
+
+function showTooltip(ev, d) {
+  const iso = ISO_N2A3[String(d.id).padStart(3,"0")];
+  const name = d.properties?.name || "—";
+  const ind = INDICATORS.find(i => i.id === state.current);
+  const v = iso ? valueFor(iso, state.current) : null;
+  const valStr = v == null ? "—" : ind.format(v);
+  const [x, y] = d3.pointer(ev, document.getElementById("map-container"));
+  tooltip
+    .style("left", (x + 14) + "px").style("top", (y + 14) + "px")
+    .style("opacity", 1)
+    .html(`<div class="name">${name}</div><div><span style="color:#cbd5e1">${ind.label}:</span> <span class="val">${valStr}</span>${ind.unit ? " " + ind.unit : ""}</div>`);
+}
+function hideTooltip() { tooltip.style("opacity", 0); }
+
+function pinCountry(d) {
+  if (state.pinned && state.pinned.id === d.id) {
+    state.pinned = null;
+    svg.selectAll("path.country").classed("selected", false);
+    document.getElementById("detail-name").textContent = "Hover a country";
+    document.getElementById("detail-sub").textContent = "Click to pin; click again to unpin.";
+    document.getElementById("detail-rows").innerHTML = "";
+    return;
+  }
+  state.pinned = d;
+  svg.selectAll("path.country").classed("selected", x => x.id === d.id);
+  updateDetailPanel(d);
+}
+
+function updateDetailPanel(d) {
+  const iso = ISO_N2A3[String(d.id).padStart(3,"0")];
+  const name = d.properties?.name || "—";
+  document.getElementById("detail-name").textContent = name;
+  document.getElementById("detail-sub").innerHTML = iso
+    ? `ISO ${iso} &middot; click again to unpin`
+    : "No ISO code found for this feature";
+
+  const rec = iso ? state.data[iso] : null;
+  const reg = iso ? ER_REGIME[iso] : null;
+  const fmtER = v => v==null ? "—" : v<10 ? v.toFixed(3) : v.toLocaleString(undefined,{maximumFractionDigits:0});
+  const srcTag = s => {
+    if (!s || s === "static") return ' <span style="color:#94a3b8;font-size:10px">snapshot</span>';
+    if (s === "live") return ' <span style="color:#059669;font-size:10px">live</span>';
+    if (s === "wb")   return ' <span style="color:#2563eb;font-size:10px">WB</span>';
+    return "";
+  };
+  const rows = [];
+  rows.push(["Exchange rate (LCU/$)",  fmtER(rec?.er) + srcTag(rec?.sources?.er)]);
+  rows.push(["PPP factor (LCU/intl$)", fmtER(rec?.ppp) + srcTag(rec?.sources?.ppp) +
+    (rec?.pppYear ? ` <span style="color:#94a3b8">(${rec.pppYear})</span>` : "")]);
+  if (rec?.er && rec?.ppp) {
+    const v = rec.ppp/rec.er - 1;
+    rows.push(["PPP vs market", (v*100).toFixed(0) + "% " + (v>0?"overvalued":"undervalued")]);
+  } else rows.push(["PPP vs market","—"]);
+  rows.push(["Big Mac index", rec?.bm==null?"—":(rec.bm>=0?"+":"")+(rec.bm*100).toFixed(0)+"%" + srcTag(rec?.sources?.bm)]);
+  rows.push(["Current account (% GDP)", rec?.ca==null?"—":(rec.ca>=0?"+":"")+rec.ca.toFixed(1)+"%" + srcTag(rec?.sources?.ca) +
+    (rec?.caYear ? ` <span style="color:#94a3b8">(${rec.caYear})</span>` : "")]);
+  rows.push(["Fiscal balance (% GDP)",  rec?.fisc==null?"—":(rec.fisc>=0?"+":"")+rec.fisc.toFixed(1)+"%" + srcTag(rec?.sources?.fisc) +
+    (rec?.fiscYear ? ` <span style="color:#94a3b8">(${rec.fiscYear})</span>` : "")]);
+  if (rec?.ca != null) {
+    const status = rec.ca >= 0
+      ? '<span class="badge badge-surplus">Surplus</span>'
+      : (rec.fisc != null && rec.fisc < 0 ? '<span class="badge badge-twin">Twin deficit</span>' : '<span style="color:#64748b">Single / mixed</span>');
+    rows.push(["BoP / fiscal status", status]);
+  } else rows.push(["BoP / fiscal status","—"]);
+  rows.push(["ER regime (AREAER)", reg ? INDICATORS.find(i=>i.id==="regime").categories[reg].label : "—"]);
+
+  document.getElementById("detail-rows").innerHTML = rows.map(([k,v]) =>
+    `<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`
+  ).join("");
+}
+
+function updateStatusChip() {
+  const parts = state.statusParts;
+  const anyLive = Object.values(parts).some(v => v === "live");
+  const allLive = Object.values(parts).every(v => v === "live");
+  const chip = document.getElementById("status-chip");
+  const ts = document.getElementById("data-timestamp");
+  if (allLive) { chip.className = "chip-live"; chip.textContent = "live data"; }
+  else if (anyLive) { chip.className = "chip-mixed"; chip.textContent = "live + snapshot"; }
+  else { chip.className = "chip-static"; chip.textContent = "offline snapshot"; }
+  if (state.fxDate) ts.textContent = "FX updated " + new Date(state.fxDate).toISOString().slice(0,10);
+}
+
+/* ============================================================================
+   Go
+   ============================================================================ */
+(async function init() {
+  setStatus("Loading map…");
+
+  // 1. Load map geometry (required)
+  let world;
+  try {
+    world = await d3.json("https://unpkg.com/world-atlas@2/countries-110m.json");
+    state.world = world;
+    state.countries = topojson.feature(world, world.objects.countries);
+  } catch (e) {
+    console.error(e);
+    setStatus("Couldn't load world map — check your internet connection.");
+    return;
+  }
+
+  // 2. Render immediately with static data (so the page isn't blank)
+  state.data = mergeData({});
+  buildTabs();
+  drawMap();
+  setIndicator("er");
+
+  // 3. Kick off live fetches in parallel; when all settle, re-render with best data.
+  const results = await Promise.allSettled([
+    fetchFX(),                                // 0 FX spot
+    fetchWB("PA.NUS.FCRF"),                   // 1 WB annual ER fallback
+    fetchWB("PA.NUS.PPP"),                    // 2 PPP conversion factor
+    fetchWB("BN.CAB.XOKA.GD.ZS"),             // 3 current account % GDP
+    fetchWB("GC.BAL.CASH.GD.ZS"),             // 4 fiscal balance % GDP (cash)
+    fetchBigMac(),                            // 5 Big Mac Index
+  ]);
+  const unpack = i => results[i].status === "fulfilled" ? results[i].value : null;
+
+  const fx    = unpack(0);
+  const wbFX  = unpack(1);
+  const wbPPP = unpack(2);
+  const wbCA  = unpack(3);
+  const wbFisc= unpack(4);
+  const bm    = unpack(5);
+
+  if (fx)    { state.statusParts.fx = "live"; state.fxDate = fx.date; }
+  if (wbPPP || wbCA || wbFisc) state.statusParts.wb = "live";
+  if (bm)    state.statusParts.bm = "live";
+
+  state.data = mergeData({ fx, wbFX, wbPPP, wbCA, wbFisc, bigmac: bm });
+  setIndicator(state.current);
+  updateStatusChip();
+})();
+</script>
+</body>
+</html>
