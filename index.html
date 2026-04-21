@@ -316,12 +316,57 @@
   #ts-modal .ts-chart-large svg { height: 200px; }
   #ts-modal .ts-chart-large .ts-line { stroke-width: 1.8; }
   #ts-modal .ts-chart-large .ts-axis-label { font-size: 11px; }
+  .ts-grid { stroke: var(--line); stroke-width: 0.5; stroke-dasharray: 2 3; opacity: 0.7; }
+  .ts-chart-blurb {
+    margin-top: 10px; padding: 10px 14px;
+    border-left: 2px solid var(--accent);
+    background: var(--paper-2); color: var(--ink-3);
+    font-size: 12px; line-height: 1.55;
+  }
+  .ts-chart-blurb b { color: var(--ink-2); font-weight: 600; }
   #ts-modal .modal-legend {
     margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line);
     font-size: 12px; color: var(--ink-3);
     font-family: "JetBrains Mono", Menlo, monospace; line-height: 1.7;
   }
   #ts-modal .modal-legend .crisis-mark { color: var(--accent-2); }
+
+  /* ---------- Detail panel: info-icon tooltips ---------- */
+  #detail-panel .detail-hint {
+    color: var(--ink-4); font-size: 10.5px;
+    font-family: "JetBrains Mono", Menlo, monospace;
+    letter-spacing: 0.02em; margin-bottom: 4px;
+    padding: 0 0 10px 0; border-bottom: 1px dashed var(--line);
+  }
+  #detail-panel .detail-hint .info-icon-demo {
+    color: var(--accent-2); font-size: 12px; margin: 0 1px;
+  }
+  #detail-panel .row { position: relative; }
+  .info-tip {
+    display: inline-block; margin-left: 4px;
+    font-size: 11px; color: var(--ink-4); cursor: help;
+    font-weight: 400; line-height: 1; vertical-align: baseline;
+    text-transform: none; letter-spacing: 0;
+  }
+  .info-tip:hover, .info-tip:focus { color: var(--accent-2); outline: none; }
+  .info-body {
+    visibility: hidden; opacity: 0;
+    position: absolute; top: calc(100% + 2px); left: 0; right: 0;
+    z-index: 40;
+    padding: 10px 14px;
+    background: #0f172a; color: #f8fafc;
+    font-family: "Inter", sans-serif; font-size: 11.5px; line-height: 1.55;
+    letter-spacing: 0; text-transform: none; font-weight: 400;
+    border-radius: 3px; box-shadow: 0 6px 20px rgba(11,18,32,0.35);
+    transition: opacity .12s;
+    pointer-events: none;
+  }
+  .info-body b { font-weight: 600; color: #fff; }
+  .info-body em { color: #e2e8f0; font-style: italic; }
+  #detail-panel .row:has(.info-tip:hover) .info-body,
+  #detail-panel .row:has(.info-tip:focus) .info-body {
+    visibility: visible; opacity: 1;
+  }
 
   /* ---------- Footer ---------- */
   footer {
@@ -788,6 +833,46 @@ const INDICATORS = [
 ];
 
 /* ============================================================================
+   Plain-language definitions for sidebar rows + time-series charts
+   (keyed by the row label / chart title — used by info-icon tooltips)
+   ============================================================================ */
+const DEFS = {
+  "Exchange rate (LCU/$)":
+    "<b>Local currency per US dollar</b>, at today's market rate. A rising number means the local currency is <b>weakening</b> vs the dollar; a falling number means strengthening. This is the price you'd pay at the airport FX counter.",
+  "PPP factor (LCU/intl$)":
+    "<b>Purchasing-Power-Parity conversion factor.</b> The number of local-currency units that would buy the same basket of goods inside the country that $1 buys in the US. Differs from the market rate mostly because non-traded goods (housing, services) have very different prices country-to-country.",
+  "PPP vs market":
+    "How far today's market rate is from PPP. <b>Undervalued</b> = local currency is 'cheap' at the market rate (a dollar goes further there than in the US). <b>Overvalued</b> = the opposite. A classic balance-of-payments textbook signal.",
+  "Big Mac index":
+    "The Economist's real-world PPP gauge, using the local price of a Big Mac vs the US price. <b>Negative</b> = the currency looks cheap vs the dollar by burger metrics; <b>positive</b> = expensive. A quick, memorable sanity check on the PPP factor above.",
+  "GDP per capita (nominal)":
+    "Output per person, converted to USD at <b>market exchange rates</b>. Useful for comparing income across countries in today's dollars — but can swing with FX movements even when real incomes don't change.",
+  "GDP per capita (PPP)":
+    "Output per person, converted using <b>PPP rates</b> — i.e. adjusted for how much a dollar actually buys locally. A much better measure of <b>real living standards</b>; this is the figure development economists usually quote.",
+  "Current account (% GDP)":
+    "Net flow of goods, services, investment income, and transfers with the rest of the world, as a share of GDP. <b>Positive</b> = net lender to the world. <b>Negative</b> = net borrower. Large persistent deficits build up into external debt.",
+  "Fiscal balance (% GDP)":
+    "Government revenues minus spending, as a share of GDP. <b>Negative</b> = budget deficit (the government is borrowing); <b>positive</b> = surplus. Large fiscal deficits combined with a current-account deficit make a <em>twin deficit</em> — often flagged as a vulnerability.",
+  "Reserves (months imports)":
+    "Foreign-currency reserves expressed as how many months of imports they could finance. Rule of thumb: <b>3 months</b> is the textbook floor for defending a currency; <b>6+ months</b> suggests comfortable insurance against balance-of-payments shocks.",
+  "BoP / fiscal status":
+    "<b>Twin deficit</b> = current-account and fiscal balance are both negative — the country is borrowing from the world while the government also runs a deficit. Often a vulnerability signal, especially under a fixed or pegged currency.",
+  "ER regime (AREAER)":
+    "The IMF's classification (from its <em>Annual Report on Exchange Arrangements and Exchange Restrictions</em>) of how a country manages its currency — hard peg, crawling peg, managed float, free float, etc. Determines how freely monetary policy can respond to shocks.",
+  "Trilemma choice":
+    "The <b>impossible trinity</b>: a country can achieve at most two of (1) a fixed exchange rate, (2) free capital mobility, and (3) independent monetary policy. This row shows which two the country appears to prioritize in practice.",
+};
+
+const TS_BLURBS = {
+  "Exchange rate (local currency per USD)":
+    "<b>Local currency units per USD</b>, annual average. A rising line means the local currency is <b>weakening</b> against the dollar; sharp jumps often mark <b>devaluations</b> or currency crises. Log scale lets small fluctuations and large collapses both show up clearly.",
+  "Inflation (CPI, year-over-year %)":
+    "<b>Year-over-year change in consumer prices</b>. Above ~3–4% typically signals an overheating economy or a currency under stress; <b>negative</b> values = deflation, a sign of weak demand. Currency crises usually show up here as a delayed spike after a devaluation.",
+  "Lending interest rate (% proxy)":
+    "<b>Commercial banks' prime lending rate</b> — what the best corporate borrowers pay. A proxy for the central bank's <b>monetary stance</b> and the real cost of credit in the economy. <b>Rising</b> = tightening (cooling demand / defending the currency); <b>falling</b> = easing.",
+};
+
+/* ============================================================================
    Live fetchers
    ============================================================================ */
 const WB = "https://api.worldbank.org/v2";
@@ -1112,9 +1197,15 @@ function updateDetailPanel(d) {
   rows.push(["ER regime (AREAER)", reg ? INDICATORS.find(i=>i.id==="regime").categories[reg].label : "—"]);
   rows.push(["Trilemma choice", triLabel]);
 
-  document.getElementById("detail-rows").innerHTML = rows.map(([k,v]) =>
-    `<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`
-  ).join("");
+  const hint = `<div class="detail-hint">Hover <span class="info-icon-demo">&#9432;</span> for definitions</div>`;
+  const rowHTML = ([k, v]) => {
+    const def = DEFS[k];
+    const label = def
+      ? `${k} <span class="info-tip" tabindex="0" role="button" aria-label="Definition of ${k}">&#9432;</span>`
+      : k;
+    return `<div class="row"><span class="k">${label}</span><span class="v">${v}</span>${def ? `<span class="info-body">${def}</span>` : ""}</div>`;
+  };
+  document.getElementById("detail-rows").innerHTML = hint + rows.map(rowHTML).join("");
 
   if (iso) renderTimeSeries(iso);
 }
@@ -1139,12 +1230,17 @@ async function renderTimeSeries(iso) {
       fetchWBSeries(iso, "FP.CPI.TOTL.ZG"),// inflation, CPI YoY %
       fetchWBSeries(iso, "FR.INR.LEND"),  // lending rate (policy-rate proxy)
     ]);
+    // null => fetch rejected (network/CORS/WB down); [] => WB returned no observations.
     series = {
-      er:   erRes.status   === "fulfilled" ? erRes.value   : [],
-      infl: inflRes.status === "fulfilled" ? inflRes.value : [],
-      rate: rateRes.status === "fulfilled" ? rateRes.value : [],
+      er:   erRes.status   === "fulfilled" ? erRes.value   : null,
+      infl: inflRes.status === "fulfilled" ? inflRes.value : null,
+      rate: rateRes.status === "fulfilled" ? rateRes.value : null,
     };
-    state.seriesCache[iso] = series;
+    // Only cache when at least one fetch succeeded — otherwise a transient WB
+    // outage would poison this iso for the rest of the session.
+    if (series.er !== null || series.infl !== null || series.rate !== null) {
+      state.seriesCache[iso] = series;
+    }
   }
   // Bail if the user pinned a different country while we were fetching
   if (!state.pinned || ISO_N2A3[String(state.pinned.id).padStart(3,"0")] !== iso) return;
@@ -1160,7 +1256,7 @@ async function renderTimeSeries(iso) {
   // Any chart with actual data becomes click-to-expand
   for (const s of specs) {
     const el = document.getElementById(s.id);
-    if (s.data.length) {
+    if (Array.isArray(s.data) && s.data.length) {
       el.classList.add("clickable");
       el.onclick = () => openTSModal(iso);
       el.title = "Click to expand";
@@ -1205,9 +1301,9 @@ function openTSModal(iso) {
   void backdrop.offsetWidth;
 
   const specs = [
-    { id:"ts-er-large",   data:series.er,   opts:{ title:"Exchange rate (local currency per USD)", log:true,  fmt:v => v<10 ? v.toFixed(2) : Math.round(v).toLocaleString(), crises, height:200 } },
-    { id:"ts-infl-large", data:series.infl, opts:{ title:"Inflation (CPI, year-over-year %)",      log:false, fmt:v => v.toFixed(1)+"%", crises, height:200 } },
-    { id:"ts-rate-large", data:series.rate, opts:{ title:"Lending interest rate (% proxy)",        log:false, fmt:v => v.toFixed(1)+"%", crises, height:200 } },
+    { id:"ts-er-large",   data:series.er,   opts:{ title:"Exchange rate (local currency per USD)", log:true,  fmt:v => v<10 ? v.toFixed(2) : Math.round(v).toLocaleString(), crises, height:200, blurb: TS_BLURBS["Exchange rate (local currency per USD)"] } },
+    { id:"ts-infl-large", data:series.infl, opts:{ title:"Inflation (CPI, year-over-year %)",      log:false, fmt:v => v.toFixed(1)+"%", crises, height:200, blurb: TS_BLURBS["Inflation (CPI, year-over-year %)"] } },
+    { id:"ts-rate-large", data:series.rate, opts:{ title:"Lending interest rate (% proxy)",        log:false, fmt:v => v.toFixed(1)+"%", crises, height:200, blurb: TS_BLURBS["Lending interest rate (% proxy)"] } },
   ];
   for (const s of specs) drawSpark(s.id, s.data, s.opts);
 }
@@ -1218,24 +1314,33 @@ function closeTSModal() {
 
 function drawSpark(containerId, data, opts) {
   const el = document.getElementById(containerId);
-  const latest = data.length ? data[data.length - 1] : null;
-  const latestStr = latest ? `${opts.fmt(latest.value)} <span style="color:#94a3b8">(${latest.year})</span>` : "no data";
+  const failed = data === null;
+  const hasData = Array.isArray(data) && data.length > 0;
+  const latest = hasData ? data[data.length - 1] : null;
+  const latestStr = latest
+    ? `${opts.fmt(latest.value)} <span style="color:#94a3b8">(${latest.year})</span>`
+    : (failed ? "fetch failed" : "no data");
 
   el.innerHTML = `<div class="ts-title"><span>${opts.title}</span><span class="ts-latest">${latestStr}</span></div>`;
-  if (!data.length) {
-    el.insertAdjacentHTML("beforeend", `<div class="ts-empty">no WB data available</div>`);
+  if (!hasData) {
+    const msg = failed
+      ? "couldn't reach World Bank — reload to retry"
+      : "no WB data available";
+    el.insertAdjacentHTML("beforeend", `<div class="ts-empty">${msg}</div>`);
     return;
   }
 
   const W = el.clientWidth || 340, H = opts.height || 70, P = 4;
   const LABEL_STRIP = 14;            // reserved at the bottom for x-axis year labels
+  const isLarge = H >= 150;
+  const LEFT = isLarge ? 48 : P;     // extra left margin for y-axis labels in the modal
   const plotBottom = H - P - LABEL_STRIP;
   const years = data.map(d => d.year);
   const vals  = data.map(d => d.value);
   const xMin = years[0], xMax = years[years.length-1];
   let yMin = Math.min(...vals), yMax = Math.max(...vals);
   if (yMin === yMax) { yMin -= 1; yMax += 1; }
-  const xScale = y => P + (y - xMin) / Math.max(1, (xMax - xMin)) * (W - 2*P);
+  const xScale = y => LEFT + (y - xMin) / Math.max(1, (xMax - xMin)) * (W - P - LEFT);
   let yScale;
   if (opts.log && yMin > 0) {
     const lMin = Math.log10(yMin), lMax = Math.log10(yMax);
@@ -1257,16 +1362,52 @@ function drawSpark(containerId, data, opts) {
               <circle class="crisis-dot" cx="${x}" cy="${P+2}" r="2.2"><title>${c.year} ${c.label}</title></circle>`;
     }).join("");
 
+  // Gridlines + y-axis value labels (modal only)
+  let gridSvg = "";
+  if (isLarge) {
+    const N = 4;
+    for (let i = 0; i <= N; i++) {
+      const t = opts.log && yMin > 0
+        ? Math.pow(10, Math.log10(yMin) + (Math.log10(yMax) - Math.log10(yMin)) * i / N)
+        : yMin + (yMax - yMin) * i / N;
+      const y = yScale(t).toFixed(1);
+      gridSvg += `<line class="ts-grid" x1="${LEFT}" y1="${y}" x2="${(W-P).toFixed(1)}" y2="${y}"></line>`;
+      gridSvg += `<text class="ts-axis-label" x="${LEFT - 6}" y="${(parseFloat(y) + 3.5).toFixed(1)}" text-anchor="end">${opts.fmt(t)}</text>`;
+    }
+  }
+
+  // X-axis year labels
   const labelY = (H - 3).toFixed(1);
+  let xLabels;
+  if (isLarge) {
+    const span = xMax - xMin;
+    const step = span <= 10 ? 2 : span <= 20 ? 5 : span <= 40 ? 5 : 10;
+    const ticks = [];
+    for (let y = Math.ceil(xMin / step) * step; y <= xMax; y += step) ticks.push(y);
+    if (!ticks.length || ticks[0] !== xMin) ticks.unshift(xMin);
+    if (ticks[ticks.length-1] !== xMax) ticks.push(xMax);
+    xLabels = ticks.map((y, i) => {
+      const anchor = i === 0 ? "start" : i === ticks.length - 1 ? "end" : "middle";
+      return `<text class="ts-axis-label" x="${xScale(y).toFixed(1)}" y="${labelY}" text-anchor="${anchor}">${y}</text>`;
+    }).join("");
+  } else {
+    xLabels = `<text class="ts-axis-label" x="${LEFT}" y="${labelY}" text-anchor="start">${xMin}</text>
+               <text class="ts-axis-label" x="${(W-P).toFixed(1)}" y="${labelY}" text-anchor="end">${xMax}</text>`;
+  }
+
   const svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-    <line class="ts-axis" x1="${P}" y1="${plotBottom.toFixed(1)}" x2="${W-P}" y2="${plotBottom.toFixed(1)}"></line>
+    ${gridSvg}
+    <line class="ts-axis" x1="${LEFT}" y1="${plotBottom.toFixed(1)}" x2="${(W-P).toFixed(1)}" y2="${plotBottom.toFixed(1)}"></line>
     <path class="ts-area" d="${areaD}"></path>
     ${crisisMarks}
     <path class="ts-line" d="${pathD}"></path>
-    <text class="ts-axis-label" x="${P}" y="${labelY}" text-anchor="start">${xMin}</text>
-    <text class="ts-axis-label" x="${W-P}" y="${labelY}" text-anchor="end">${xMax}</text>
+    ${xLabels}
   </svg>`;
   el.insertAdjacentHTML("beforeend", svg);
+
+  if (opts.blurb) {
+    el.insertAdjacentHTML("beforeend", `<div class="ts-chart-blurb">${opts.blurb}</div>`);
+  }
 }
 
 function updateStatusChip() {
