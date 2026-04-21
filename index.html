@@ -34,30 +34,34 @@
   a { color: var(--accent-2); text-decoration: none; border-bottom: 1px solid rgba(140,106,10,0.3); }
   a:hover { border-bottom-color: var(--accent-2); }
 
-  /* ---------- Header ---------- */
+  /* ---------- Header (compact horizontal) ---------- */
   header {
-    padding: 40px 56px 28px;
+    padding: 18px 40px 16px;
     background: var(--card);
     border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 28px;
   }
+  header .title-block { flex: 0 1 auto; min-width: 0; }
   header .eyebrow {
-    font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
-    color: var(--accent-2); font-weight: 600; margin-bottom: 12px;
+    font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--accent-2); font-weight: 600; margin-bottom: 2px;
   }
   header h1 {
-    margin: 0 0 10px 0;
+    margin: 0;
     font-family: "Fraunces", "Playfair Display", Georgia, serif;
-    font-weight: 500; font-size: 40px; letter-spacing: -0.02em;
-    color: var(--ink); line-height: 1.08;
+    font-weight: 500; font-size: 26px; letter-spacing: -0.015em;
+    color: var(--ink); line-height: 1.1;
     font-variation-settings: "SOFT" 30, "opsz" 144;
+    white-space: nowrap;
   }
   header .lede {
-    color: var(--ink-3); font-size: 15.5px; max-width: 720px;
-    line-height: 1.55; margin: 0;
+    color: var(--ink-3); font-size: 13px; max-width: 560px;
+    line-height: 1.5; margin: 0; flex: 1 1 auto;
+    border-left: 1px solid var(--line); padding-left: 20px;
   }
   .meta-row {
-    display: flex; gap: 14px; align-items: center;
-    margin-top: 20px; font-size: 12px; color: var(--ink-4);
+    display: flex; gap: 10px; align-items: center; flex: 0 0 auto;
+    font-size: 11px; color: var(--ink-4);
     font-family: "JetBrains Mono", Menlo, Consolas, monospace;
   }
   #status-chip {
@@ -76,41 +80,43 @@
   /* ---------- Layout ---------- */
   main {
     display: grid;
-    grid-template-columns: 240px minmax(0, 1fr) 340px;
+    grid-template-columns: 210px minmax(0, 1fr) 400px;
     gap: 0;
-    min-height: 72vh;
+    min-height: 78vh;
   }
-  @media (max-width: 1220px) {
-    main { grid-template-columns: 220px minmax(0, 1fr); }
+  @media (max-width: 1180px) {
+    main { grid-template-columns: 200px minmax(0, 1fr); }
     #detail-panel { display: none; }
   }
-  @media (max-width: 820px) {
+  @media (max-width: 900px) {
     main { grid-template-columns: 1fr; }
     #sidebar { border-right: none; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
-    header { padding: 28px 24px 20px; }
-    header h1 { font-size: 30px; }
-    footer { padding: 20px 24px 28px; }
+    header { flex-wrap: wrap; gap: 12px 20px; padding: 14px 20px; }
+    header .lede { border-left: none; padding-left: 0; flex-basis: 100%; }
+    footer { padding: 18px 20px 24px; }
   }
 
   /* ---------- Sidebar (indicator selector) ---------- */
   #sidebar {
     background: var(--card);
     border-right: 1px solid var(--line);
-    padding: 32px 0 24px 0;
+    padding: 22px 0 20px 0;
   }
+  .nav-section { margin-bottom: 14px; }
+  .nav-section:last-child { margin-bottom: 0; }
   .group-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase;
-    color: var(--ink-4); padding: 0 24px 14px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-4); padding: 0 20px 8px;
   }
   .tab-btn {
     display: block; width: 100%; text-align: left;
     appearance: none; border: none; background: transparent;
     color: var(--ink-2); font-family: inherit;
-    font-size: 13.5px; font-weight: 500;
-    padding: 11px 24px 11px 21px;
+    font-size: 12.5px; font-weight: 500;
+    padding: 8px 20px 8px 17px;
     cursor: pointer; border-left: 3px solid transparent;
     transition: background .12s ease, color .12s ease, border-color .12s ease;
-    line-height: 1.35;
+    line-height: 1.3;
   }
   .tab-btn:hover { background: var(--paper-2); color: var(--ink); }
   .tab-btn.active {
@@ -175,37 +181,38 @@
   /* ---------- Detail panel ---------- */
   #detail-panel {
     background: var(--card);
-    padding: 32px 28px;
+    padding: 22px 26px 26px;
     min-width: 0;
+    border-left: 1px solid var(--line);
   }
   #detail-panel .eyebrow {
     font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
-    color: var(--accent-2); font-weight: 600; margin-bottom: 10px;
+    color: var(--accent-2); font-weight: 600; margin-bottom: 6px;
   }
   #detail-panel h2 {
-    margin: 0 0 4px 0;
+    margin: 0 0 2px 0;
     font-family: "Fraunces", Georgia, serif;
-    font-weight: 500; font-size: 26px; letter-spacing: -0.015em;
+    font-weight: 500; font-size: 22px; letter-spacing: -0.015em;
     color: var(--ink); line-height: 1.1;
   }
   #detail-panel .sub {
-    color: var(--ink-4); font-size: 12px; margin-bottom: 20px;
+    color: var(--ink-4); font-size: 11.5px; margin-bottom: 14px;
     font-family: "JetBrains Mono", Menlo, monospace;
   }
   #detail-panel .row {
     display: flex; justify-content: space-between;
-    padding: 11px 0; border-top: 1px solid var(--line);
-    font-size: 13px; gap: 10px; align-items: baseline;
+    padding: 8px 0; border-top: 1px solid var(--line);
+    font-size: 12.5px; gap: 10px; align-items: baseline;
   }
   #detail-panel .row:first-of-type { border-top: none; }
   #detail-panel .row .k {
-    color: var(--ink-4); font-size: 11.5px; letter-spacing: 0.02em;
+    color: var(--ink-4); font-size: 11px; letter-spacing: 0.02em;
     text-transform: uppercase; font-weight: 500;
   }
   #detail-panel .row .v {
     font-weight: 600; color: var(--ink);
     font-family: "JetBrains Mono", Menlo, monospace;
-    font-variant-numeric: tabular-nums; font-size: 13px; text-align: right;
+    font-variant-numeric: tabular-nums; font-size: 12.5px; text-align: right;
   }
 
   .badge {
@@ -216,13 +223,113 @@
   .badge-twin    { background: #FEE2E2; color: #991B1B; }
   .badge-surplus { background: #D1FAE5; color: #065F46; }
 
+  /* ---------- Time-series charts in detail panel ---------- */
+  .ts-section { margin-top: 18px; }
+  .ts-section .ts-header {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-4); font-weight: 700;
+    padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  .ts-chart { margin-bottom: 14px; }
+  .ts-chart:last-child { margin-bottom: 0; }
+  .ts-title {
+    font-size: 11px; font-weight: 600; color: var(--ink-2);
+    letter-spacing: 0.04em; text-transform: uppercase;
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .ts-title .ts-latest {
+    font-family: "JetBrains Mono", Menlo, monospace;
+    font-size: 11px; font-weight: 500; color: var(--ink-3);
+    letter-spacing: 0;
+  }
+  .ts-chart svg { display: block; width: 100%; height: 70px; }
+  .ts-chart .ts-line { fill: none; stroke: var(--ink-2); stroke-width: 1.4; }
+  .ts-chart .ts-area { fill: rgba(184,134,11,0.08); stroke: none; }
+  .ts-chart .ts-axis { stroke: var(--line); stroke-width: 0.5; }
+  .ts-chart .ts-axis-label {
+    font-family: "JetBrains Mono", monospace; font-size: 9px;
+    fill: var(--ink-4);
+  }
+  .ts-chart .crisis-line { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 2; opacity: 0.55; }
+  .ts-chart .crisis-dot  { fill: var(--accent); cursor: help; }
+  .ts-chart .ts-empty {
+    font-size: 11px; color: var(--ink-4); font-style: italic;
+    text-align: center; padding: 20px 0;
+  }
+  .ts-legend {
+    margin-top: 8px; font-size: 10.5px; color: var(--ink-4);
+    font-family: "JetBrains Mono", Menlo, monospace; line-height: 1.5;
+  }
+  .ts-legend .crisis-mark { color: var(--accent-2); }
+  .ts-chart.clickable { cursor: zoom-in; border-radius: 2px; transition: background .12s; }
+  .ts-chart.clickable:hover { background: var(--paper-2); }
+
+  /* ---------- Time-series modal (click-to-expand) ---------- */
+  #ts-modal-backdrop {
+    position: fixed; inset: 0; z-index: 90;
+    background: rgba(11, 18, 32, 0.55);
+    display: none; align-items: flex-start; justify-content: center;
+    padding: 40px 24px; overflow-y: auto;
+    animation: fadein .15s ease;
+  }
+  #ts-modal-backdrop.open { display: flex; }
+  @keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
+  #ts-modal {
+    background: var(--card);
+    border-top: 3px solid var(--accent);
+    width: 100%; max-width: 960px;
+    padding: 28px 36px 32px;
+    box-shadow: 0 24px 64px rgba(11,18,32,0.45);
+    position: relative;
+  }
+  #ts-modal .modal-eyebrow {
+    font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--accent-2); font-weight: 600; margin-bottom: 4px;
+  }
+  #ts-modal h3 {
+    margin: 0 0 4px 0;
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500; font-size: 28px; letter-spacing: -0.015em;
+    color: var(--ink); line-height: 1.1;
+  }
+  #ts-modal .modal-sub {
+    color: var(--ink-4); font-size: 12px; margin-bottom: 22px;
+    font-family: "JetBrains Mono", Menlo, monospace;
+  }
+  #ts-modal-close {
+    position: absolute; top: 18px; right: 22px;
+    width: 28px; height: 28px;
+    border: 1px solid var(--line); background: var(--card);
+    color: var(--ink-3); cursor: pointer; font-size: 16px;
+    border-radius: 2px; line-height: 1; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: inherit;
+  }
+  #ts-modal-close:hover { color: var(--ink); border-color: var(--ink-4); }
+  #ts-modal .ts-chart-large { margin-bottom: 22px; }
+  #ts-modal .ts-chart-large:last-of-type { margin-bottom: 12px; }
+  #ts-modal .ts-chart-large .ts-title {
+    font-size: 13px; letter-spacing: 0.05em; margin-bottom: 8px;
+  }
+  #ts-modal .ts-chart-large .ts-title .ts-latest { font-size: 13px; }
+  #ts-modal .ts-chart-large svg { height: 200px; }
+  #ts-modal .ts-chart-large .ts-line { stroke-width: 1.8; }
+  #ts-modal .ts-chart-large .ts-axis-label { font-size: 11px; }
+  #ts-modal .modal-legend {
+    margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--ink-3);
+    font-family: "JetBrains Mono", Menlo, monospace; line-height: 1.7;
+  }
+  #ts-modal .modal-legend .crisis-mark { color: var(--accent-2); }
+
   /* ---------- Footer ---------- */
   footer {
-    padding: 24px 56px 32px;
-    color: var(--ink-3); font-size: 12px;
+    padding: 18px 40px 24px;
+    color: var(--ink-3); font-size: 11.5px;
     border-top: 1px solid var(--line);
     background: var(--card);
-    line-height: 1.7;
+    line-height: 1.65;
   }
   footer strong { color: var(--ink-2); font-weight: 600; }
   footer a { color: var(--accent-2); }
@@ -230,9 +337,11 @@
 </head>
 <body>
 <header>
-  <div class="eyebrow">An Interactive Atlas</div>
-  <h1>International Finance at&nbsp;a&nbsp;Glance</h1>
-  <p class="lede">Exchange rates, purchasing-power parity, the balance of payments, and currency-regime choices &mdash; assembled from live market and institutional data, shaded country by country.</p>
+  <div class="title-block">
+    <div class="eyebrow">An Interactive Atlas</div>
+    <h1>International Finance at&nbsp;a&nbsp;Glance</h1>
+  </div>
+  <p class="lede">Exchange rates, parities, the balance of payments, and currency-regime choices &mdash; assembled from live market and institutional data, shaded country by country.</p>
   <div class="meta-row">
     <span id="status-chip" class="chip-loading">loading live data</span>
     <span id="data-timestamp"></span>
@@ -241,7 +350,6 @@
 
 <main>
   <aside id="sidebar">
-    <div class="group-label">Indicator</div>
     <nav id="tabs"></nav>
   </aside>
 
@@ -257,9 +365,16 @@
 
   <aside id="detail-panel">
     <div class="eyebrow">Country Detail</div>
-    <h2 id="detail-name">Hover a country</h2>
-    <div class="sub" id="detail-sub">Click to pin &middot; click again to unpin.</div>
+    <h2 id="detail-name">Click a country</h2>
+    <div class="sub" id="detail-sub">Click a country on the map to pin it &middot; click again to unpin.</div>
     <div id="detail-rows"></div>
+    <div id="detail-timeseries" class="ts-section" style="display:none">
+      <div class="ts-header">Historical series &middot; crises marked <span style="color:var(--accent-2)">&#9613;</span></div>
+      <div class="ts-chart" id="ts-er"></div>
+      <div class="ts-chart" id="ts-infl"></div>
+      <div class="ts-chart" id="ts-rate"></div>
+      <div class="ts-legend" id="ts-legend"></div>
+    </div>
   </aside>
 </main>
 
@@ -274,6 +389,19 @@
     A static snapshot (early-2025 values) ships as a fallback so the page works offline; live data, when available, overrides the snapshot. Map geometry from <a href="https://github.com/topojson/world-atlas" target="_blank" rel="noopener">world-atlas</a> (Natural Earth, public domain).
   </div>
 </footer>
+
+<div id="ts-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="ts-modal-title">
+  <div id="ts-modal">
+    <button id="ts-modal-close" aria-label="Close">&times;</button>
+    <div class="modal-eyebrow">Country Detail &middot; Historical Series</div>
+    <h3 id="ts-modal-title">—</h3>
+    <div class="modal-sub" id="ts-modal-sub">Click outside, press Esc, or the &times; to close.</div>
+    <div class="ts-chart ts-chart-large" id="ts-er-large"></div>
+    <div class="ts-chart ts-chart-large" id="ts-infl-large"></div>
+    <div class="ts-chart ts-chart-large" id="ts-rate-large"></div>
+    <div class="modal-legend" id="ts-modal-legend"></div>
+  </div>
+</div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://unpkg.com/topojson-client@3"></script>
@@ -536,8 +664,61 @@ const ER_REGIME = {
 };
 
 /* ============================================================================
-   Indicator configuration
+   Capital-account openness (coarse) — used to derive the trilemma choice
+   Countries NOT in this set are treated as "open" (the majority of advanced +
+   small open economies). Based on Chinn-Ito / IMF capital-flow measures.
    ============================================================================ */
+const CAPITAL_CLOSED = new Set([
+  "CHN","IND","RUS","VNM","EGY","NGA","PAK","ARG","VEN","BLR","IRN","UZB",
+  "TKM","MMR","LBY","SDN","SYR","ZWE","BOL","ZMB","AGO","DZA","ETH","LAO",
+  "LBN","KAZ","KGZ","TJK","UKR","NPL","MDA","MNG","MAR","TUN","BGD","LKA",
+  "IRQ","YEM","CUB","PRK","SLE","MDG","GIN","MRT","COD","MOZ","MWI","KEN",
+  "TZA","UGA","GHA","GMB","RWA","KHM","CMR","CIV","SEN","BFA","BEN","NER",
+  "TGO","GNB","BDI","SOM","ERI","SSD","SOM","ZWE","AFG","AZE",
+]);
+
+/* ============================================================================
+   Crisis markers — year, label, and which countries they apply to.
+   "ALL" means global shock (shown on every country's time-series chart).
+   ============================================================================ */
+const CRISIS_MARKERS = [
+  {year:1994, label:"Mexican peso crisis",       countries:["MEX"]},
+  {year:1997, label:"Asian financial crisis",    countries:["THA","IDN","KOR","MYS","PHL","HKG","SGP"]},
+  {year:1998, label:"Russian default",           countries:["RUS"]},
+  {year:2001, label:"Argentine crisis",          countries:["ARG"]},
+  {year:2008, label:"Global financial crisis",   countries:"ALL"},
+  {year:2011, label:"Eurozone debt crisis",      countries:["GRC","PRT","IRL","ESP","ITA","CYP"]},
+  {year:2014, label:"Ruble crash / sanctions",   countries:["RUS"]},
+  {year:2015, label:"CHF unpeg",                 countries:["CHE"]},
+  {year:2018, label:"Turkish lira / Argentine peso", countries:["TUR","ARG"]},
+  {year:2020, label:"COVID-19 shock",            countries:"ALL"},
+  {year:2022, label:"Ruble / sterling / TUR",    countries:["RUS","GBR","TUR"]},
+  {year:2023, label:"Argentine devaluation",     countries:["ARG"]},
+];
+
+function crisesFor(iso) {
+  return CRISIS_MARKERS.filter(c => c.countries === "ALL" || c.countries.includes(iso));
+}
+
+function trilemmaFor(iso) {
+  const regime = ER_REGIME[iso];
+  if (!regime) return null;
+  const closed = CAPITAL_CLOSED.has(iso);
+  if (closed) return "stab_auto";
+  if (regime === "peg" || regime === "hardpeg" || regime === "euro") return "stab_mob";
+  if (regime === "float" || regime === "managed") return "auto_mob";
+  return null;
+}
+
+/* ============================================================================
+   Indicator configuration — grouped for the sidebar
+   ============================================================================ */
+const INDICATOR_GROUPS = [
+  { label: "Prices & valuation",   ids: ["er", "ppp", "bigmac", "gdppc"] },
+  { label: "External balance",     ids: ["ca", "ka", "twin", "reserves"] },
+  { label: "Monetary regime",      ids: ["regime", "trilemma"] },
+];
+
 const INDICATORS = [
   { id:"er", label:"Exchange rate vs USD",
     blurb:"Local currency units per US dollar — <b>live daily spot rate</b> from open.er-api.com (falls back to recent annual averages if the API is unavailable). Shown on a <b>log scale</b> because values span 0.3 to 100,000+. Darker = more LCU per dollar (local currency is weaker in nominal terms).",
@@ -585,6 +766,25 @@ const INDICATORS = [
     },
     format:v => ({float:"Free floating",managed:"Floating / managed",peg:"Peg / stabilized / crawl",hardpeg:"Currency board / hard peg",euro:"Eurozone"}[v]||"—")
   },
+  { id:"gdppc", label:"GDP per capita (PPP)",
+    blurb:"Real income per person, measured in <b>PPP international dollars</b> (World Bank) — i.e. purchasing-power-adjusted. Shown on a <b>log scale</b> because the top-to-bottom ratio is roughly 200×. Pin any country to see both nominal and PPP GDP/cap side by side in the detail panel — the gap between the two is exactly what the PPP concept is about.",
+    scale:"log", domain:[800, 120000], colors:["#f3f4f6","#1e3a8a"],
+    format:v => "$" + Math.round(v).toLocaleString(), unit:"intl $"
+  },
+  { id:"reserves", label:"Reserves (months of imports)",
+    blurb:"<b>Total international reserves / monthly imports</b>. A classic adequacy rule of thumb: <b>3 months</b> is the textbook floor for defending a currency; <b>6+ months</b> suggests comfortable insurance; very low values signal balance-of-payments stress. Live from World Bank.",
+    scale:"log", domain:[1, 24], colors:["#fee2e2","#065f46"],
+    format:v => v.toFixed(1) + " mo", unit:"months"
+  },
+  { id:"trilemma", label:"Policy trilemma choice",
+    blurb:"The <b>impossible trinity</b>: a country can have at most <em>two</em> of (1) independent monetary policy, (2) free capital mobility, (3) a stable exchange rate. Classification combines AREAER regime with a coarse capital-openness proxy. Floats with open capital markets give up stability; hard pegs with open markets give up monetary autonomy; controlled EMs keep autonomy + stability by restricting capital flows.",
+    scale:"categorical", categories:{
+      auto_mob:  {label:"Autonomy + Mobility (floats)",        color:"#1d4ed8"},
+      stab_mob:  {label:"Stability + Mobility (hard pegs)",    color:"#b45309"},
+      stab_auto: {label:"Stability + Autonomy (controls)",     color:"#047857"},
+    },
+    format:v => ({auto_mob:"Autonomy + Mobility",stab_mob:"Stability + Mobility",stab_auto:"Stability + Autonomy"}[v]||"—")
+  },
 ];
 
 /* ============================================================================
@@ -618,6 +818,23 @@ async function fetchFX() {
   return { rates: j.rates, date: j.time_last_update_utc };
 }
 
+// Fetch a WB indicator as a time series for one country → [ {year, value}, ... ]
+async function fetchWBSeries(iso3, indicator, fromYear = 1995) {
+  const thisYear = new Date().getFullYear();
+  const url = `${WB}/country/${iso3}/indicator/${indicator}?format=json&date=${fromYear}:${thisYear}&per_page=200`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`WB ${indicator} ${iso3} HTTP ${r.status}`);
+  const j = await r.json();
+  const rows = j[1] || [];
+  const out = [];
+  for (const row of rows) {
+    if (row.value == null) continue;
+    out.push({ year: +row.date, value: +row.value });
+  }
+  out.sort((a, b) => a.year - b.year);
+  return out;
+}
+
 // Fetch most recent Big Mac row per country → { ISO3: { date, over } }
 async function fetchBigMac() {
   const url = "https://raw.githubusercontent.com/TheEconomistDataTeam/big-mac-data/master/output-data/big-mac-full-index.csv";
@@ -644,9 +861,10 @@ async function fetchBigMac() {
    ============================================================================ */
 let state = {
   world:null, countries:null, current:"er", pinned:null,
-  data: {},              // merged per-country { er, ppp, ca, fisc, bm, sources: {...} }
+  data: {},              // merged per-country { er, ppp, ca, fisc, bm, gdpn, gdpp, res, sources: {...} }
   statusParts: { fx:"static", wb:"static", bm:"static" },
   fxDate: null, dataYears: {},
+  seriesCache: {},       // iso3 → { er:[], infl:[], rate:[], loaded:true }
 };
 
 const width = 960, height = 500;
@@ -663,7 +881,7 @@ function setStatus(msg) {
     .text(msg);
 }
 
-function mergeData({fx, wbFX, wbPPP, wbCA, wbFisc, bigmac}) {
+function mergeData({fx, wbFX, wbPPP, wbCA, wbFisc, bigmac, wbGDPn, wbGDPp, wbRes}) {
   // Start from static snapshot, overlay live values where we have them.
   const out = {};
   const allIso = new Set([
@@ -672,10 +890,14 @@ function mergeData({fx, wbFX, wbPPP, wbCA, wbFisc, bigmac}) {
     ...Object.keys(wbCA || {}),
     ...Object.keys(wbFisc || {}),
     ...Object.keys(bigmac || {}),
+    ...Object.keys(wbGDPn || {}),
+    ...Object.keys(wbGDPp || {}),
+    ...Object.keys(wbRes || {}),
   ]);
   for (const iso of allIso) {
     const s = STATIC[iso] || {};
-    const src = { er:"static", ppp:"static", ca:"static", fisc:"static", bm:"static" };
+    const src = { er:"static", ppp:"static", ca:"static", fisc:"static", bm:"static",
+                  gdpn:"static", gdpp:"static", res:"static" };
     let er = s.er ?? null;
     // Live FX: look up country's currency; some (e.g., USA→USD) will be 1 directly.
     const ccy = CURRENCY[iso];
@@ -685,16 +907,20 @@ function mergeData({fx, wbFX, wbPPP, wbCA, wbFisc, bigmac}) {
         er = fx.rates[ccy]; src.er = "live";
       }
     } else if (fx && wbFX && wbFX[iso]) {
-      // Fall back to WB annual average
       er = wbFX[iso].value; src.er = "wb";
     }
     const ppp  = wbPPP?.[iso]?.value  ?? s.ppp  ?? null; if (wbPPP?.[iso])  src.ppp  = "live";
     const ca   = wbCA?.[iso]?.value   ?? s.ca   ?? null; if (wbCA?.[iso])   src.ca   = "live";
     const fisc = wbFisc?.[iso]?.value ?? s.fisc ?? null; if (wbFisc?.[iso]) src.fisc = "live";
     const bm   = bigmac?.[iso]?.over  ?? s.bm   ?? null; if (bigmac?.[iso]) src.bm   = "live";
-    out[iso] = { er, ppp, ca, fisc, bm, sources: src,
+    const gdpn = wbGDPn?.[iso]?.value ?? null; if (wbGDPn?.[iso]) src.gdpn = "live";
+    const gdpp = wbGDPp?.[iso]?.value ?? null; if (wbGDPp?.[iso]) src.gdpp = "live";
+    const res  = wbRes?.[iso]?.value  ?? null; if (wbRes?.[iso])  src.res  = "live";
+    out[iso] = { er, ppp, ca, fisc, bm, gdpn, gdpp, res, sources: src,
                  pppYear: wbPPP?.[iso]?.year, caYear: wbCA?.[iso]?.year,
-                 fiscYear: wbFisc?.[iso]?.year, bmDate: bigmac?.[iso]?.date };
+                 fiscYear: wbFisc?.[iso]?.year, bmDate: bigmac?.[iso]?.date,
+                 gdpnYear: wbGDPn?.[iso]?.year, gdppYear: wbGDPp?.[iso]?.year,
+                 resYear: wbRes?.[iso]?.year };
   }
   return out;
 }
@@ -713,8 +939,11 @@ function valueFor(iso3, id) {
       if (d.fisc != null && d.fisc < 0) return "twin";
       return "mixed";
     }
-    case "regime": return ER_REGIME[iso3] ?? null;
-    default:       return null;
+    case "regime":   return ER_REGIME[iso3] ?? null;
+    case "gdppc":    return d?.gdpp ?? null;
+    case "reserves": return d?.res  ?? null;
+    case "trilemma": return trilemmaFor(iso3);
+    default:         return null;
   }
 }
 
@@ -729,11 +958,27 @@ function colorScaleFor(ind) {
 }
 
 function buildTabs() {
-  d3.select("#tabs").selectAll("button").data(INDICATORS).join("button")
-    .attr("class", "tab-btn")
-    .attr("data-id", d => d.id)
-    .text(d => d.label)
-    .on("click", (_, d) => setIndicator(d.id));
+  const root = document.getElementById("tabs");
+  root.innerHTML = "";
+  for (const group of INDICATOR_GROUPS) {
+    const section = document.createElement("div");
+    section.className = "nav-section";
+    const label = document.createElement("div");
+    label.className = "group-label";
+    label.textContent = group.label;
+    section.appendChild(label);
+    for (const id of group.ids) {
+      const ind = INDICATORS.find(i => i.id === id);
+      if (!ind) continue;
+      const btn = document.createElement("button");
+      btn.className = "tab-btn";
+      btn.dataset.id = id;
+      btn.textContent = ind.label;
+      btn.addEventListener("click", () => setIndicator(id));
+      section.appendChild(btn);
+    }
+    root.appendChild(section);
+  }
 }
 
 function drawMap() {
@@ -753,7 +998,9 @@ function drawMap() {
 function setIndicator(id) {
   state.current = id;
   const ind = INDICATORS.find(i => i.id === id);
-  d3.selectAll("#tabs button").classed("active", d => d?.id === id);
+  document.querySelectorAll("#tabs .tab-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.id === id);
+  });
   const scale = colorScaleFor(ind);
   svg.selectAll("path.country")
     .attr("fill", d => {
@@ -810,9 +1057,10 @@ function pinCountry(d) {
   if (state.pinned && state.pinned.id === d.id) {
     state.pinned = null;
     svg.selectAll("path.country").classed("selected", false);
-    document.getElementById("detail-name").textContent = "Hover a country";
-    document.getElementById("detail-sub").textContent = "Click to pin; click again to unpin.";
+    document.getElementById("detail-name").textContent = "Click a country";
+    document.getElementById("detail-sub").textContent = "Click a country on the map to pin it; click again to unpin.";
     document.getElementById("detail-rows").innerHTML = "";
+    document.getElementById("detail-timeseries").style.display = "none";
     return;
   }
   state.pinned = d;
@@ -830,26 +1078,31 @@ function updateDetailPanel(d) {
 
   const rec = iso ? state.data[iso] : null;
   const reg = iso ? ER_REGIME[iso] : null;
+  const tri = iso ? trilemmaFor(iso) : null;
   const fmtER = v => v==null ? "—" : v<10 ? v.toFixed(3) : v.toLocaleString(undefined,{maximumFractionDigits:0});
+  const fmtGDP = v => v==null ? "—" : "$" + Math.round(v).toLocaleString();
   const srcTag = s => {
     if (!s || s === "static") return ' <span style="color:#94a3b8;font-size:10px">snapshot</span>';
     if (s === "live") return ' <span style="color:#059669;font-size:10px">live</span>';
     if (s === "wb")   return ' <span style="color:#2563eb;font-size:10px">WB</span>';
     return "";
   };
+  const yr = y => y ? ` <span style="color:#94a3b8">(${y})</span>` : "";
+  const triLabel = tri ? INDICATORS.find(i=>i.id==="trilemma").categories[tri].label : "—";
+
   const rows = [];
   rows.push(["Exchange rate (LCU/$)",  fmtER(rec?.er) + srcTag(rec?.sources?.er)]);
-  rows.push(["PPP factor (LCU/intl$)", fmtER(rec?.ppp) + srcTag(rec?.sources?.ppp) +
-    (rec?.pppYear ? ` <span style="color:#94a3b8">(${rec.pppYear})</span>` : "")]);
+  rows.push(["PPP factor (LCU/intl$)", fmtER(rec?.ppp) + srcTag(rec?.sources?.ppp) + yr(rec?.pppYear)]);
   if (rec?.er && rec?.ppp) {
     const v = rec.ppp/rec.er - 1;
     rows.push(["PPP vs market", (v*100).toFixed(0) + "% " + (v>0?"overvalued":"undervalued")]);
   } else rows.push(["PPP vs market","—"]);
   rows.push(["Big Mac index", rec?.bm==null?"—":(rec.bm>=0?"+":"")+(rec.bm*100).toFixed(0)+"%" + srcTag(rec?.sources?.bm)]);
-  rows.push(["Current account (% GDP)", rec?.ca==null?"—":(rec.ca>=0?"+":"")+rec.ca.toFixed(1)+"%" + srcTag(rec?.sources?.ca) +
-    (rec?.caYear ? ` <span style="color:#94a3b8">(${rec.caYear})</span>` : "")]);
-  rows.push(["Fiscal balance (% GDP)",  rec?.fisc==null?"—":(rec.fisc>=0?"+":"")+rec.fisc.toFixed(1)+"%" + srcTag(rec?.sources?.fisc) +
-    (rec?.fiscYear ? ` <span style="color:#94a3b8">(${rec.fiscYear})</span>` : "")]);
+  rows.push(["GDP per capita (nominal)", fmtGDP(rec?.gdpn) + yr(rec?.gdpnYear)]);
+  rows.push(["GDP per capita (PPP)",     fmtGDP(rec?.gdpp) + yr(rec?.gdppYear)]);
+  rows.push(["Current account (% GDP)", rec?.ca==null?"—":(rec.ca>=0?"+":"")+rec.ca.toFixed(1)+"%" + srcTag(rec?.sources?.ca) + yr(rec?.caYear)]);
+  rows.push(["Fiscal balance (% GDP)",  rec?.fisc==null?"—":(rec.fisc>=0?"+":"")+rec.fisc.toFixed(1)+"%" + srcTag(rec?.sources?.fisc) + yr(rec?.fiscYear)]);
+  rows.push(["Reserves (months imports)", rec?.res==null?"—":rec.res.toFixed(1)+" mo" + yr(rec?.resYear)]);
   if (rec?.ca != null) {
     const status = rec.ca >= 0
       ? '<span class="badge badge-surplus">Surplus</span>'
@@ -857,10 +1110,163 @@ function updateDetailPanel(d) {
     rows.push(["BoP / fiscal status", status]);
   } else rows.push(["BoP / fiscal status","—"]);
   rows.push(["ER regime (AREAER)", reg ? INDICATORS.find(i=>i.id==="regime").categories[reg].label : "—"]);
+  rows.push(["Trilemma choice", triLabel]);
 
   document.getElementById("detail-rows").innerHTML = rows.map(([k,v]) =>
     `<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`
   ).join("");
+
+  if (iso) renderTimeSeries(iso);
+}
+
+async function renderTimeSeries(iso) {
+  const section = document.getElementById("detail-timeseries");
+  section.style.display = "block";
+
+  // Clear charts + show loading placeholder
+  const containers = ["ts-er", "ts-infl", "ts-rate"];
+  for (const id of containers) {
+    document.getElementById(id).innerHTML =
+      `<div class="ts-title"><span>Loading…</span></div>
+       <div class="ts-empty">fetching historical data</div>`;
+  }
+  document.getElementById("ts-legend").innerHTML = "";
+
+  let series = state.seriesCache[iso];
+  if (!series) {
+    const [erRes, inflRes, rateRes] = await Promise.allSettled([
+      fetchWBSeries(iso, "PA.NUS.FCRF"),  // annual avg LCU/USD
+      fetchWBSeries(iso, "FP.CPI.TOTL.ZG"),// inflation, CPI YoY %
+      fetchWBSeries(iso, "FR.INR.LEND"),  // lending rate (policy-rate proxy)
+    ]);
+    series = {
+      er:   erRes.status   === "fulfilled" ? erRes.value   : [],
+      infl: inflRes.status === "fulfilled" ? inflRes.value : [],
+      rate: rateRes.status === "fulfilled" ? rateRes.value : [],
+    };
+    state.seriesCache[iso] = series;
+  }
+  // Bail if the user pinned a different country while we were fetching
+  if (!state.pinned || ISO_N2A3[String(state.pinned.id).padStart(3,"0")] !== iso) return;
+
+  const crises = crisesFor(iso);
+  const specs = [
+    { id:"ts-er",   data:series.er,   opts:{ title:"Exchange rate (LCU / $)", log:true, fmt:v => v<10 ? v.toFixed(2) : Math.round(v).toLocaleString(), crises } },
+    { id:"ts-infl", data:series.infl, opts:{ title:"Inflation (CPI, YoY %)",  log:false, fmt:v => v.toFixed(1)+"%", crises } },
+    { id:"ts-rate", data:series.rate, opts:{ title:"Lending rate (% proxy)",  log:false, fmt:v => v.toFixed(1)+"%", crises } },
+  ];
+  for (const s of specs) drawSpark(s.id, s.data, s.opts);
+
+  // Any chart with actual data becomes click-to-expand
+  for (const s of specs) {
+    const el = document.getElementById(s.id);
+    if (s.data.length) {
+      el.classList.add("clickable");
+      el.onclick = () => openTSModal(iso);
+      el.title = "Click to expand";
+    } else {
+      el.classList.remove("clickable");
+      el.onclick = null;
+      el.removeAttribute("title");
+    }
+  }
+
+  const leg = document.getElementById("ts-legend");
+  if (crises.length) {
+    leg.innerHTML = "<span class='crisis-mark'>&#9613;</span> " +
+      crises.map(c => `${c.year} ${c.label}`).join(" &middot; ") +
+      " &middot; <span style='color:var(--accent-2)'>click any chart to expand</span>";
+  } else {
+    leg.innerHTML = "<span style='color:var(--accent-2)'>Click any chart to expand</span>";
+  }
+}
+
+function openTSModal(iso) {
+  const series = state.seriesCache[iso];
+  if (!series) return;
+  const pinned = state.pinned;
+  const name = pinned?.properties?.name || iso;
+  const crises = crisesFor(iso);
+
+  document.getElementById("ts-modal-title").textContent = name;
+  document.getElementById("ts-modal-sub").innerHTML =
+    `ISO ${iso} &middot; World Bank annual series &middot; crises marked <span style="color:var(--accent-2)">&#9613;</span>`;
+
+  const leg = document.getElementById("ts-modal-legend");
+  leg.innerHTML = crises.length
+    ? "<span class='crisis-mark'>&#9613;</span> Dashed lines: " +
+      crises.map(c => `<b>${c.year}</b> ${c.label}`).join(" &middot; ")
+    : "No crisis markers applicable to this country.";
+
+  // Show the modal first so the chart containers have a real layout width.
+  const backdrop = document.getElementById("ts-modal-backdrop");
+  backdrop.classList.add("open");
+  // Force layout so clientWidth reflects the now-visible flex container.
+  void backdrop.offsetWidth;
+
+  const specs = [
+    { id:"ts-er-large",   data:series.er,   opts:{ title:"Exchange rate (local currency per USD)", log:true,  fmt:v => v<10 ? v.toFixed(2) : Math.round(v).toLocaleString(), crises, height:200 } },
+    { id:"ts-infl-large", data:series.infl, opts:{ title:"Inflation (CPI, year-over-year %)",      log:false, fmt:v => v.toFixed(1)+"%", crises, height:200 } },
+    { id:"ts-rate-large", data:series.rate, opts:{ title:"Lending interest rate (% proxy)",        log:false, fmt:v => v.toFixed(1)+"%", crises, height:200 } },
+  ];
+  for (const s of specs) drawSpark(s.id, s.data, s.opts);
+}
+
+function closeTSModal() {
+  document.getElementById("ts-modal-backdrop").classList.remove("open");
+}
+
+function drawSpark(containerId, data, opts) {
+  const el = document.getElementById(containerId);
+  const latest = data.length ? data[data.length - 1] : null;
+  const latestStr = latest ? `${opts.fmt(latest.value)} <span style="color:#94a3b8">(${latest.year})</span>` : "no data";
+
+  el.innerHTML = `<div class="ts-title"><span>${opts.title}</span><span class="ts-latest">${latestStr}</span></div>`;
+  if (!data.length) {
+    el.insertAdjacentHTML("beforeend", `<div class="ts-empty">no WB data available</div>`);
+    return;
+  }
+
+  const W = el.clientWidth || 340, H = opts.height || 70, P = 4;
+  const LABEL_STRIP = 14;            // reserved at the bottom for x-axis year labels
+  const plotBottom = H - P - LABEL_STRIP;
+  const years = data.map(d => d.year);
+  const vals  = data.map(d => d.value);
+  const xMin = years[0], xMax = years[years.length-1];
+  let yMin = Math.min(...vals), yMax = Math.max(...vals);
+  if (yMin === yMax) { yMin -= 1; yMax += 1; }
+  const xScale = y => P + (y - xMin) / Math.max(1, (xMax - xMin)) * (W - 2*P);
+  let yScale;
+  if (opts.log && yMin > 0) {
+    const lMin = Math.log10(yMin), lMax = Math.log10(yMax);
+    yScale = v => plotBottom - (Math.log10(v) - lMin) / Math.max(1e-9, (lMax - lMin)) * (plotBottom - P);
+  } else {
+    yScale = v => plotBottom - (v - yMin) / Math.max(1e-9, (yMax - yMin)) * (plotBottom - P);
+  }
+
+  const pts = data.map(d => [xScale(d.year), yScale(d.value)]);
+  const pathD = pts.map(([x,y], i) => (i ? "L" : "M") + x.toFixed(1) + "," + y.toFixed(1)).join(" ");
+  const areaD = pathD + ` L ${pts[pts.length-1][0].toFixed(1)},${plotBottom.toFixed(1)} L ${pts[0][0].toFixed(1)},${plotBottom.toFixed(1)} Z`;
+
+  // Crisis lines: only those within the series' year range
+  const crisisMarks = (opts.crises || [])
+    .filter(c => c.year >= xMin && c.year <= xMax)
+    .map(c => {
+      const x = xScale(c.year).toFixed(1);
+      return `<line class="crisis-line" x1="${x}" y1="${P}" x2="${x}" y2="${plotBottom.toFixed(1)}"><title>${c.year} ${c.label}</title></line>
+              <circle class="crisis-dot" cx="${x}" cy="${P+2}" r="2.2"><title>${c.year} ${c.label}</title></circle>`;
+    }).join("");
+
+  const labelY = (H - 3).toFixed(1);
+  const svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <line class="ts-axis" x1="${P}" y1="${plotBottom.toFixed(1)}" x2="${W-P}" y2="${plotBottom.toFixed(1)}"></line>
+    <path class="ts-area" d="${areaD}"></path>
+    ${crisisMarks}
+    <path class="ts-line" d="${pathD}"></path>
+    <text class="ts-axis-label" x="${P}" y="${labelY}" text-anchor="start">${xMin}</text>
+    <text class="ts-axis-label" x="${W-P}" y="${labelY}" text-anchor="end">${xMax}</text>
+  </svg>`;
+  el.insertAdjacentHTML("beforeend", svg);
 }
 
 function updateStatusChip() {
@@ -874,6 +1280,17 @@ function updateStatusChip() {
   else { chip.className = "chip-static"; chip.textContent = "offline snapshot"; }
   if (state.fxDate) ts.textContent = "FX updated " + new Date(state.fxDate).toISOString().slice(0,10);
 }
+
+/* ============================================================================
+   Modal close handlers (wired once)
+   ============================================================================ */
+document.getElementById("ts-modal-close").addEventListener("click", closeTSModal);
+document.getElementById("ts-modal-backdrop").addEventListener("click", (ev) => {
+  if (ev.target.id === "ts-modal-backdrop") closeTSModal();
+});
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape") closeTSModal();
+});
 
 /* ============================================================================
    Go
@@ -907,21 +1324,27 @@ function updateStatusChip() {
     fetchWB("BN.CAB.XOKA.GD.ZS"),             // 3 current account % GDP
     fetchWB("GC.BAL.CASH.GD.ZS"),             // 4 fiscal balance % GDP (cash)
     fetchBigMac(),                            // 5 Big Mac Index
+    fetchWB("NY.GDP.PCAP.CD"),                // 6 GDP per capita, nominal US$
+    fetchWB("NY.GDP.PCAP.PP.CD"),             // 7 GDP per capita, PPP intl$
+    fetchWB("FI.RES.TOTL.MO"),                // 8 reserves in months of imports
   ]);
   const unpack = i => results[i].status === "fulfilled" ? results[i].value : null;
 
-  const fx    = unpack(0);
-  const wbFX  = unpack(1);
-  const wbPPP = unpack(2);
-  const wbCA  = unpack(3);
-  const wbFisc= unpack(4);
-  const bm    = unpack(5);
+  const fx     = unpack(0);
+  const wbFX   = unpack(1);
+  const wbPPP  = unpack(2);
+  const wbCA   = unpack(3);
+  const wbFisc = unpack(4);
+  const bm     = unpack(5);
+  const wbGDPn = unpack(6);
+  const wbGDPp = unpack(7);
+  const wbRes  = unpack(8);
 
   if (fx)    { state.statusParts.fx = "live"; state.fxDate = fx.date; }
-  if (wbPPP || wbCA || wbFisc) state.statusParts.wb = "live";
+  if (wbPPP || wbCA || wbFisc || wbGDPn || wbGDPp || wbRes) state.statusParts.wb = "live";
   if (bm)    state.statusParts.bm = "live";
 
-  state.data = mergeData({ fx, wbFX, wbPPP, wbCA, wbFisc, bigmac: bm });
+  state.data = mergeData({ fx, wbFX, wbPPP, wbCA, wbFisc, bigmac: bm, wbGDPn, wbGDPp, wbRes });
   setIndicator(state.current);
   updateStatusChip();
 })();
