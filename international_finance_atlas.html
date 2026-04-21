@@ -851,6 +851,8 @@ const DEFS = {
     "Output per person, converted using <b>PPP rates</b> — i.e. adjusted for how much a dollar actually buys locally. A much better measure of <b>real living standards</b>; this is the figure development economists usually quote.",
   "Current account (% GDP)":
     "Net flow of goods, services, investment income, and transfers with the rest of the world, as a share of GDP. <b>Positive</b> = net lender to the world. <b>Negative</b> = net borrower. Large persistent deficits build up into external debt.",
+  "Capital & financial inflows (% GDP)":
+    "<b>Net borrowing from the rest of the world</b>, as a share of GDP. By the BoP identity, this is just the <b>current account flipped in sign</b>: whatever a country doesn't earn from the world it must finance by net inflows of capital (foreigners buying its bonds, equities, FDI). Positive = net inflows; negative = the country is lending abroad on net.",
   "Fiscal balance (% GDP)":
     "Government revenues minus spending, as a share of GDP. <b>Negative</b> = budget deficit (the government is borrowing); <b>positive</b> = surplus. Large fiscal deficits combined with a current-account deficit make a <em>twin deficit</em> — often flagged as a vulnerability.",
   "Reserves (months imports)":
@@ -1186,6 +1188,7 @@ function updateDetailPanel(d) {
   rows.push(["GDP per capita (nominal)", fmtGDP(rec?.gdpn) + yr(rec?.gdpnYear)]);
   rows.push(["GDP per capita (PPP)",     fmtGDP(rec?.gdpp) + yr(rec?.gdppYear)]);
   rows.push(["Current account (% GDP)", rec?.ca==null?"—":(rec.ca>=0?"+":"")+rec.ca.toFixed(1)+"%" + srcTag(rec?.sources?.ca) + yr(rec?.caYear)]);
+  rows.push(["Capital & financial inflows (% GDP)", rec?.ca==null?"—":(-rec.ca>=0?"+":"")+(-rec.ca).toFixed(1)+"%" + yr(rec?.caYear)]);
   rows.push(["Fiscal balance (% GDP)",  rec?.fisc==null?"—":(rec.fisc>=0?"+":"")+rec.fisc.toFixed(1)+"%" + srcTag(rec?.sources?.fisc) + yr(rec?.fiscYear)]);
   rows.push(["Reserves (months imports)", rec?.res==null?"—":rec.res.toFixed(1)+" mo" + yr(rec?.resYear)]);
   if (rec?.ca != null) {
